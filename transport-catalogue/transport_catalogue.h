@@ -16,7 +16,6 @@
 
 namespace tc {
 
-
 	struct Stop {
 		std::string name;
 		geo::Coordinates coordinates;
@@ -35,7 +34,7 @@ namespace tc {
 		size_t number_unique_stops = 0;
 		double geographical_distance = 0; // географическое расстояние
 		size_t road_distance = 0; // дорожное расстояние
-		double tortuosity = 1;
+		double tortuosity = 1; // извилистость
 	};
 
 	struct StopBuses {
