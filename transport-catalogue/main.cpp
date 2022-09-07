@@ -33,12 +33,12 @@ int main() {
 		"Stop Biryulyovo Zapadnoye\n"
 	};
 
-	tc::TransportCatalogue transport_catalogue;
+	transport_catalogue::TransportCatalogue t_catalogue;
 
-	input::InputReader input(transport_catalogue);
+	input::InputReader input(t_catalogue);
 	input.FillCatalogue(move(input::read::ReadQuery(test_input)));
 
-	statr::StatReader output(transport_catalogue);
+	statr::StatReader output(t_catalogue);
 	output.GetStat(test_input);
 	return 0;
 }

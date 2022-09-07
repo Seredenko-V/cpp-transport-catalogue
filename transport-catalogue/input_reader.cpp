@@ -29,20 +29,21 @@ namespace input {
 	}
 
 	namespace parse {
-		vector<string> SplitIntoInformBlocks(string&& text, const char symbol) {
+		vector<string> SplitIntoInformBlocks(string&& text, const char symbol_delimiter) {
 			vector<string> inform_blocks;
 			size_t begin_block = 0;
 			while (begin_block != text.npos) {
-				inform_blocks.emplace_back(move(text.substr(begin_block, text.find_first_of(symbol, begin_block) - begin_block)));
-				begin_block = text.find_first_of(symbol, begin_block) != text.npos ? text.find_first_of(symbol, begin_block) + 2 : text.npos;
+				size_t position_delimiter = text.find_first_of(symbol_delimiter, begin_block); // позиция символа-разделителя
+				inform_blocks.emplace_back(text.substr(begin_block, position_delimiter - begin_block));
+				begin_block = position_delimiter != text.npos ? position_delimiter + 2 : text.npos;
 			}
 			return inform_blocks;
 		}
 
-		pair<size_t, string> GetDistanceToStop(string&& text) {
+		detail::DistanceToStop GetDistanceToStop(string&& text) {
 			size_t end_pos_distance_value = text.find_first_of('m');
 			size_t distance_value = static_cast<size_t>(atof(text.substr(0, end_pos_distance_value).c_str()));
-			return { distance_value, move(text.substr(end_pos_distance_value + 5)) };
+			return { text.substr(end_pos_distance_value + 5), distance_value };
 		}
 
 		vector<string> SplitIntoStops(string&& text, const char separator_symbol) {
@@ -61,18 +62,19 @@ namespace input {
 		}
 	}
 
-	InputReader::InputReader(tc::TransportCatalogue& transport_catalogue)
+	InputReader::InputReader(transport_catalogue::TransportCatalogue& transport_catalogue)
 		: transport_catalogue_(transport_catalogue) {
 	}
 
 	void InputReader::FillDistanceStops(unordered_map<string, vector<string>>&& inform_blocks_stops) {
+		using namespace parse;
 		for (auto& [stop, inform_blocks] : inform_blocks_stops) {
 			if (inform_blocks.size() <= 2) {
 				continue;
 			}
 			for (size_t i = 2; i < inform_blocks.size(); ++i) {
-				pair<size_t, string> distance_to_other_stop = parse::GetDistanceToStop(move(inform_blocks[i]));
-				transport_catalogue_.AddDistanceBetweenStops(stop, move(distance_to_other_stop.second), distance_to_other_stop.first);
+				detail::DistanceToStop distance_to_other_stop = GetDistanceToStop(move(inform_blocks[i]));
+				transport_catalogue_.SetDistanceBetweenStops(stop, move(distance_to_other_stop.name_neighboring_stop), distance_to_other_stop.distance);
 			}
 		}
 	}
@@ -95,17 +97,18 @@ namespace input {
 		vector<string> text_buses; // для обработки маршрутов ПОСЛЕ обработки остановок
 
 		for (string& text_query : queries) {
+			size_t position_space = text_query.find_first_of(' ');
 			if (text_query.substr(0, text_query.find_first_of(' ')) == "Stop"s) {
-				string name_stop = move(text_query.substr(text_query.find_first_of(' ') + 1, text_query.find_first_of(':') - (text_query.find_first_of(' ') + 1)));
-				inform_blocks_stops[name_stop] = (SplitIntoInformBlocks(move(text_query.substr(text_query.find_first_of(':') + 1)), ','));
+				size_t position_colon = text_query.find_first_of(':');
+				string name_stop = move(text_query.substr(position_space + 1, position_colon - (position_space + 1)));
+				inform_blocks_stops[name_stop] = (SplitIntoInformBlocks(move(text_query.substr(position_colon + 1)), ','));
 				transport_catalogue_.AddStop(move(name_stop), atof(inform_blocks_stops.at(name_stop)[0].c_str()), atof(inform_blocks_stops.at(name_stop)[1].c_str()));
 			} else {
 				// добавление перечня остановок в вектор строк без ключевого слова "Bus"
-				text_buses.emplace_back(move(text_query.substr(text_query.find_first_of(' ') + 1)));
+				text_buses.emplace_back(move(text_query.substr(position_space + 1)));
 			}
 		}
-
 		FillDistanceStops(move(inform_blocks_stops));
-		FillBuses(move(text_buses));		
+		FillBuses(move(text_buses));
 	}
 }

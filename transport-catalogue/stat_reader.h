@@ -5,6 +5,7 @@
 #include <iomanip>
 #include <iostream>
 #include <istream>
+#include <ostream>
 #include <string_view>
 #include <vector>
 #include <string>
@@ -25,16 +26,16 @@ namespace statr {
 	}
 
 	namespace print {
-		void PrintInformBus(const tc::BusInfo& stat_bus);
-		void PrintBusesStop(const tc::StopBuses& stop_buses);
+		void PrintInformBus(const transport_catalogue::detail::BusInfo& stat_bus);
+		void PrintBusesStop(const transport_catalogue::detail::StopBuses& stop_buses);
 	}
 
 	class StatReader {
 	public:
-		StatReader(tc::TransportCatalogue& transport_catalogue);
+		StatReader(transport_catalogue::TransportCatalogue& transport_catalogue);
 		void GetStat(std::istream& input);
 
 	private:
-		tc::TransportCatalogue& transport_catalogue_;
+		transport_catalogue::TransportCatalogue& transport_catalogue_;
 	};
 }

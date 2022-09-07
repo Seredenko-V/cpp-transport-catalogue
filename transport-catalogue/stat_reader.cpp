@@ -20,35 +20,45 @@ namespace statr {
 	}
 
 	namespace print {
-		void PrintInformBus(const tc::BusInfo& stat_bus) {
+		void PrintInformBus(const transport_catalogue::detail::BusInfo& stat_bus) {
+			ostream& out = cout;
 			if (stat_bus.is_empty) {
-				cout << "Bus "s << stat_bus.name << ": not found"s << endl;
+				out << "Bus "s << stat_bus.name << ": not found"s << endl;
 			} else {
-				cout << "Bus "s << stat_bus.name << ": "s << stat_bus.number_stops << " stops on route, "s <<
+				out << "Bus "s << stat_bus.name << ": "s << stat_bus.number_stops << " stops on route, "s <<
 					stat_bus.number_unique_stops << " unique stops, "s << setprecision(6) << stat_bus.road_distance
 					<< " route length, "s << stat_bus.tortuosity << " curvature" << endl;
 			}
 		}
 
-		void PrintBusesStop(const tc::StopBuses& stop_buses) {
-			cout << "Stop "sv << stop_buses.name << ": "sv;
+		void PrintBusesStop(const transport_catalogue::detail::StopBuses& stop_buses) {
+			using namespace transport_catalogue;
+			vector <const Bus*> stop_buses_vect(stop_buses.buses_stop.size());
+			copy(stop_buses.buses_stop.begin(), stop_buses.buses_stop.end(), stop_buses_vect.begin());
+			sort(stop_buses_vect.begin(), stop_buses_vect.end(),
+				[](const Bus*& lhs, const Bus*& rhs) {
+					return lhs->name < rhs->name;
+				});
+
+			ostream& out = cout;
+			out << "Stop "sv << stop_buses.name << ": "sv;
 			if (stop_buses.is_empty) {
-				cout << "not found"sv << endl;
+				out << "not found"sv << endl;
 				return;
 			}
 			if (stop_buses.buses_stop.empty()) {
-				cout << "no buses"sv << endl;
+				out << "no buses"sv << endl;
 			} else {
-				cout << "buses "sv;
-				for (const tc::Bus* const& bus : stop_buses.buses_stop) {
-					cout << bus->name << " "sv;
+				out << "buses "sv;
+				for (const transport_catalogue::Bus* const& bus : stop_buses_vect) {
+					out << bus->name << " "sv;
 				}
-				cout << endl;
+				out << endl;
 			}
 		}
 	}
 
-	StatReader::StatReader(tc::TransportCatalogue& transport_catalogue)
+	StatReader::StatReader(transport_catalogue::TransportCatalogue& transport_catalogue)
 		: transport_catalogue_(transport_catalogue) {
 	}
 
@@ -69,9 +79,10 @@ namespace statr {
 			case TypeQuery::BUS:
 				PrintInformBus(transport_catalogue_.GetBusInfo(GetNameBus(query)));
 				break;
-			case TypeQuery::STOP:
+			case TypeQuery::STOP: {
 				PrintBusesStop(transport_catalogue_.GetListBusesStop(GetNameStop(query)));
 				break;
+			}
 			default:
 				break;
 			}

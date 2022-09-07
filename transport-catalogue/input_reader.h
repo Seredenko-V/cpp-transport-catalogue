@@ -9,20 +9,19 @@
 #include <deque>
 #include <unordered_map>
 
-using namespace std::literals;
-
 namespace input {
+
 	class InputReader
 	{
 	public:
-		InputReader(tc::TransportCatalogue& transport_catalogue);
+		InputReader(transport_catalogue::TransportCatalogue& transport_catalogue);
 		void FillCatalogue(std::vector<std::string>&& queries);
 
 	private:
 		void FillDistanceStops(std::unordered_map<std::string, std::vector<std::string>>&& inform_blocks_stops);
 		void FillBuses(std::vector<std::string>&& text_buses);
 
-		tc::TransportCatalogue& transport_catalogue_;
+		transport_catalogue::TransportCatalogue& transport_catalogue_;
 	};
 
 	namespace read {
@@ -32,10 +31,19 @@ namespace input {
 	}
 
 	namespace parse {
+		namespace detail {
+			struct DistanceToStop {
+				std::string name_neighboring_stop;
+				size_t distance = 0;
+			};
+		}
+
 		std::vector<std::string> SplitIntoInformBlocks(std::string&& text, const char symbol);
-		std::pair<size_t, std::string> GetDistanceToStop(std::string&& text);
+		detail::DistanceToStop GetDistanceToStop(std::string&& text);
 
 		// разделение названий остановок маршрута
 		std::vector<std::string> SplitIntoStops(std::string&& text, const char separator_symbol);
 	}
+
+
 }

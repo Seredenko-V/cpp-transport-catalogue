@@ -14,7 +14,7 @@
 #include <cmath>
 #include <stack>
 
-namespace tc {
+namespace transport_catalogue {
 
 	struct Stop {
 		std::string name;
@@ -27,52 +27,56 @@ namespace tc {
 		bool is_ring; // является ли маршрут кольцевым
 	};
 
-	struct BusInfo {
-		bool is_empty = true;
-		std::string_view name;
-		size_t number_stops = 0;
-		size_t number_unique_stops = 0;
-		double geographical_distance = 0; // географическое расстояние
-		size_t road_distance = 0; // дорожное расстояние
-		double tortuosity = 1; // извилистость
-	};
+	namespace detail {
+		struct BusInfo {
+			bool is_empty = true;
+			std::string_view name;
+			size_t number_stops = 0;
+			size_t number_unique_stops = 0;
+			double geographical_distance = 0; // географическое расстояние
+			size_t road_distance = 0; // дорожное расстояние
+			double tortuosity = 1; // извилистость
+		};
 
-	struct StopBuses {
-		bool is_empty = true;
-		std::string_view name;
-		std::vector<const Bus*> buses_stop;
-	};
+		struct StopBuses {
+			bool is_empty = true;
+			std::string_view name;
+			std::unordered_set<const Bus*>& buses_stop;
+		};
 
+		struct HasherDistanceTable {
+			size_t operator()(const std::pair<const Stop*, const Stop*> two_stops) const {
+				size_t prime_value = 17;
+				static size_t exponent = 0;
+				size_t h_first = std::hash<const Stop*>{}(two_stops.first) * static_cast<size_t>(std::pow(prime_value, exponent++));
+				size_t h_second = std::hash<const Stop*>{}(two_stops.second) * static_cast<size_t>(std::pow(prime_value, exponent++));
+				return h_first + h_second;
+			}
+		};
+	}
 
 	class TransportCatalogue
 	{
 	public:
 		void AddStop(std::string&& name_stop, double latitude, double longitude);
-		void AddDistanceBetweenStops(std::string_view name_first_stop, std::string_view name_second_stop, size_t distance_to_neighboring);
+		void SetDistanceBetweenStops(std::string_view name_first_stop, std::string_view name_second_stop, size_t distance_to_neighboring);
 		void AddBus(std::string&& name, std::vector<std::string>&& stops, bool is_ring);
 
 		const Stop* FindStop(std::string_view name_stop) const;
 		const Bus* FindBus(std::string_view name_bus) const;
-		BusInfo GetBusInfo(std::string_view name_bus) const;
+		detail::BusInfo GetBusInfo(std::string_view name_bus) const;
 
 		// если такой остановкой уже интересовались, то вывести посчитанный ранее результат,
 		// иначе добавить в "кэш", чтобы дублирующиеся запросы не вычислялись дважды
-		const StopBuses GetListBusesStop(std::string_view name_stop);
+		const detail::StopBuses GetListBusesStop(std::string_view name_stop);
 
 	private:
 
-		struct HasherDistanceTable {
-			size_t operator()(const std::pair<const Stop*, const Stop*> two_stops) const {
-				size_t h_first = std::hash<const Stop*>{}(two_stops.first);
-				size_t h_second = std::hash<const Stop*>{}(two_stops.second);
-				return h_first + h_second;
-			}
-		};
+		size_t GetNumUniqueStops(std::string_view name_bus) const;
 
-		size_t FindUniqueStops(std::string_view name_bus) const;
 		double CalculatingGeographicalDistance(std::string_view name_bus) const;
+		size_t GetDistanceBetweenTwoStops(Stop* first, Stop* second) const;
 		size_t CalculatingRoadDistance(std::string_view name_bus) const;
-
 
 		std::deque<Stop> stops_; // хранятся сами данные об остановках
 		std::deque<Bus> buses_; // хранятся данные о маршрутах
@@ -85,6 +89,6 @@ namespace tc {
 		// после запроса, а "кэш" хранится на сервере
 		std::unordered_map<const Stop*, std::unordered_set<const Bus*>> cache_buses_stops_;
 
-		std::unordered_map<std::pair<Stop*, Stop*>, size_t, HasherDistanceTable> distance_between_stops_;
+		std::unordered_map<std::pair<Stop*, Stop*>, size_t, detail::HasherDistanceTable> distance_between_stops_;
 	};
 }
