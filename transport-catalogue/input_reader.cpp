@@ -74,7 +74,7 @@ namespace input {
 			}
 			for (size_t i = 2; i < inform_blocks.size(); ++i) {
 				detail::DistanceToStop distance_to_other_stop = GetDistanceToStop(move(inform_blocks[i]));
-				transport_catalogue_.SetDistanceBetweenStops(stop, move(distance_to_other_stop.name_neighboring_stop), distance_to_other_stop.distance);
+				transport_catalogue_.SetDistanceBetweenStops(transport_catalogue_.FindStop(move(stop)), transport_catalogue_.FindStop(move(distance_to_other_stop.name_neighboring_stop)), distance_to_other_stop.distance);
 			}
 		}
 	}
