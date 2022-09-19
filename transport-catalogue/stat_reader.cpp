@@ -4,7 +4,7 @@
 using namespace std;
 
 namespace statr {
-	namespace getinf {
+	namespace get_inform {
 		string_view GetNameBus(string_view text_query) {
 			return text_query.substr(text_query.find_first_of(' ') + 1);
 		}
@@ -20,18 +20,17 @@ namespace statr {
 	}
 
 	namespace print {
-		void PrintInformBus(const transport_catalogue::detail::BusInfo& stat_bus) {
-			ostream& out = cout;
+		void PrintInformBus(const BusInfo& stat_bus, ostream& out) {
 			if (stat_bus.is_empty) {
 				out << "Bus "s << stat_bus.name << ": not found"s << endl;
 			} else {
 				out << "Bus "s << stat_bus.name << ": "s << stat_bus.number_stops << " stops on route, "s <<
 					stat_bus.number_unique_stops << " unique stops, "s << setprecision(6) << stat_bus.road_distance
-					<< " route length, "s << stat_bus.tortuosity << " curvature" << endl;
+					<< " route length, "s << stat_bus.curvature << " curvature" << endl;
 			}
 		}
 
-		void PrintBusesStop(const transport_catalogue::detail::StopBuses& stop_buses) {
+		void PrintBusesStop(const StopBuses& stop_buses, ostream& out) {
 			using namespace transport_catalogue;
 			vector <const Bus*> stop_buses_vect(stop_buses.buses_stop.size());
 			copy(stop_buses.buses_stop.begin(), stop_buses.buses_stop.end(), stop_buses_vect.begin());
@@ -40,7 +39,6 @@ namespace statr {
 					return lhs->name < rhs->name;
 				});
 
-			ostream& out = cout;
 			out << "Stop "sv << stop_buses.name << ": "sv;
 			if (stop_buses.is_empty) {
 				out << "not found"sv << endl;
@@ -50,7 +48,7 @@ namespace statr {
 				out << "no buses"sv << endl;
 			} else {
 				out << "buses "sv;
-				for (const transport_catalogue::Bus* const& bus : stop_buses_vect) {
+				for (const Bus* const& bus : stop_buses_vect) {
 					out << bus->name << " "sv;
 				}
 				out << endl;
@@ -64,7 +62,7 @@ namespace statr {
 
 	void StatReader::GetStat(istream& input) {
 		using namespace input::read;
-		using namespace getinf;
+		using namespace get_inform;
 		using namespace print;
 
 		size_t num_string = ReadLineWithNumber(input);

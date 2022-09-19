@@ -39,7 +39,7 @@ namespace transport_catalogue {
 		return busname_to_bus_.count(name_bus) ? busname_to_bus_.at(name_bus) : nullptr;
 	}
 
-	detail::BusInfo TransportCatalogue::GetBusInfo(std::string_view name_bus) const {
+	BusInfo TransportCatalogue::GetBusInfo(std::string_view name_bus) const {
 		if (!busname_to_bus_.count(name_bus)) {
 			return { true, name_bus };
 		}
@@ -92,7 +92,7 @@ namespace transport_catalogue {
 		return route_length;
 	}
 
-	const detail::StopBuses TransportCatalogue::GetListBusesStop(string_view name_stop) {
+	const StopBuses TransportCatalogue::GetListBusesStop(string_view name_stop) {
 		cStopPtr stop = FindStop(name_stop);
 		static unordered_set<const Bus*> empty;
 
@@ -104,4 +104,17 @@ namespace transport_catalogue {
 		}
 		return { false, stop->name, cache_buses_stops_.at(stop) };
 	}
+
+	vector<cBusPtr> TransportCatalogue::GetAllBusesSorted() const {
+		vector<cBusPtr> all_sorted_buses(buses_.size());
+		for (size_t i = 0; i < all_sorted_buses.size(); ++i) {
+			all_sorted_buses[i] = &buses_[i];
+		}
+		sort(all_sorted_buses.begin(), all_sorted_buses.end(),
+			[](cBusPtr& lhs, cBusPtr& rhs) {
+				return lhs->name < rhs->name;
+			});
+		return all_sorted_buses;
+	}
+
 }

@@ -1,6 +1,5 @@
 #pragma once
-
-#include "geo.h"
+#include "domain.h"
 
 #include <iostream>
 #include <string_view>
@@ -16,44 +15,16 @@
 
 namespace transport_catalogue {
 
-	struct Stop {
-		std::string name;
-		geo::Coordinates coordinates;
-	};
-
-	struct Bus {
-		std::string name;
-		std::vector<Stop*> stops;
-		bool is_ring; // является ли маршрут кольцевым
-	};
-
 	using cStopPtr = const Stop*;
 	using cBusPtr = const Bus*;
 
 	namespace detail {
-		struct BusInfo {
-			bool is_empty = true;
-			std::string_view name;
-			size_t number_stops = 0;
-			size_t number_unique_stops = 0;
-			double geographical_distance = 0; // географическое расстояние
-			size_t road_distance = 0; // дорожное расстояние
-			double tortuosity = 1; // извилистость
-		};
-
-		struct StopBuses {
-			bool is_empty = true;
-			std::string_view name;
-			std::unordered_set<cBusPtr>& buses_stop;
-		};
-
 		struct HasherDistanceTable {
 			size_t operator()(const std::pair<cStopPtr, cStopPtr> two_stops) const {
 				size_t prime_value = 17;
-				static size_t exponent = 0;
-				size_t h_first = std::hash<cStopPtr>{}(two_stops.first) * static_cast<size_t>(std::pow(prime_value, exponent++));
-				size_t h_second = std::hash<cStopPtr>{}(two_stops.second) * static_cast<size_t>(std::pow(prime_value, exponent++));
-				return h_first + h_second;
+				size_t h_first = std::hash<cStopPtr>{}(two_stops.first);
+				size_t h_second = std::hash<cStopPtr>{}(two_stops.second);
+				return h_first + h_second * prime_value;
 			}
 		};
 	}
@@ -64,14 +35,15 @@ namespace transport_catalogue {
 		void AddStop(std::string&& name_stop, double latitude, double longitude);
 		void AddBus(std::string&& name, std::vector<std::string>&& stops, bool is_ring);
 		void SetDistanceBetweenStops(cStopPtr first_stop, cStopPtr second_stop, size_t distance_to_neighboring);
-		void FillListsBusesStop(cBusPtr bus);
 
 		const Stop* FindStop(std::string_view name_stop) const;
 		cBusPtr FindBus(std::string_view name_bus) const;
-		detail::BusInfo GetBusInfo(std::string_view name_bus) const;
-		const detail::StopBuses GetListBusesStop(std::string_view name_stop);
+		BusInfo GetBusInfo(std::string_view name_bus) const;
+		const StopBuses GetListBusesStop(std::string_view name_stop);
+		std::vector<cBusPtr> GetAllBusesSorted() const;
 
 	private:
+		void FillListsBusesStop(cBusPtr bus);
 
 		size_t GetNumUniqueStops(cBusPtr bus) const;
 

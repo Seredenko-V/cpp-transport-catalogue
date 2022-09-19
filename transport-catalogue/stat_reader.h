@@ -1,6 +1,7 @@
 #pragma once
 
 #include "transport_catalogue.h"
+#include "domain.h"
 
 #include <iomanip>
 #include <iostream>
@@ -18,7 +19,7 @@ namespace statr {
 		STOP
 	};
 
-	namespace getinf {
+	namespace get_inform {
 		TypeQuery GetTypeQuery(std::string_view text_query);
 		std::string_view GetNameBus(std::string_view text_query);
 		std::string_view GetNameStop(std::string_view text_query);
@@ -26,8 +27,8 @@ namespace statr {
 	}
 
 	namespace print {
-		void PrintInformBus(const transport_catalogue::detail::BusInfo& stat_bus);
-		void PrintBusesStop(const transport_catalogue::detail::StopBuses& stop_buses);
+		void PrintInformBus(const BusInfo& stat_bus, std::ostream& out = std::cout);
+		void PrintBusesStop(const StopBuses& stop_buses, std::ostream& out = std::cout);
 	}
 
 	class StatReader {

@@ -1,44 +1,28 @@
 ﻿#include "transport_catalogue.h"
-#include "input_reader.h"
-#include "stat_reader.h"
+#include "json_reader.h"
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
+#include <fstream>
 
 using namespace std;
+using namespace input;
 
 int main() {
 
-	istringstream test_input{
-		"13\n"
-		"Stop Tolstopaltsevo: 55.611087, 37.20829, 3900m to Marushkino\n"
-		"Stop Marushkino: 55.595884, 37.209755, 9900m to Rasskazovka, 100m to Marushkino\n"
-		"Bus 256: Biryulyovo Zapadnoye > Biryusinka > Universam > Biryulyovo Tovarnaya > Biryulyovo Passazhirskaya > Biryulyovo Zapadnoye\n"
-		"Bus 750: Tolstopaltsevo - Marushkino - Marushkino - Rasskazovka\n"
-		"Stop Rasskazovka: 55.632761, 37.333324, 9500m to Marushkino\n"
-		"Stop Biryulyovo Zapadnoye: 55.574371, 37.6517, 7500m to Rossoshanskaya ulitsa, 1800m to Biryusinka, 2400m to Universam\n"
-		"Stop Biryusinka: 55.581065, 37.64839, 750m to Universam\n"
-		"Stop Universam: 55.587655, 37.645687, 5600m to Rossoshanskaya ulitsa, 900m to Biryulyovo Tovarnaya\n"
-		"Stop Biryulyovo Tovarnaya: 55.592028, 37.653656, 1300m to Biryulyovo Passazhirskaya\n"
-		"Stop Biryulyovo Passazhirskaya: 55.580999, 37.659164, 1200m to Biryulyovo Zapadnoye\n"
-		"Bus 828: Biryulyovo Zapadnoye > Universam > Rossoshanskaya ulitsa > Biryulyovo Zapadnoye\n"
-		"Stop Rossoshanskaya ulitsa: 55.595579, 37.605757\n"
-		"Stop Prazhskaya: 55.611678, 37.603831\n"
-		"6\n"
-		"Bus 256\n"
-		"Bus 750\n"
-		"Bus 751\n"
-		"Stop Samara\n"
-		"Stop Prazhskaya\n"
-		"Stop Biryulyovo Zapadnoye\n"
+	istringstream input_JSON {"{\"render_settings\": {\"width\": 32107.28117719066, \"height\": 71936.98012090003, \"padding\": 53.98914803751499, \"stop_radius\": 42038.64102039122, \"line_width\": 86086.78648467388, \"stop_label_font_size\": 7597, \"stop_label_offset\": [-32278.039724323884, 18486.788689490102], \"underlayer_color\": \"tan\", \"underlayer_width\": 7741.009226568677, \"color_palette\": [[103, 135, 214], [101, 99, 86, 0.747283216592306], [94, 220, 111], [126, 42, 128, 0.13710542817098337], \"black\", [152, 87, 195], [48, 200, 247], [187, 136, 15], [24, 184, 213], [5, 27, 162], [224, 196, 57, 0.0190199476263343], [133, 18, 82], [220, 178, 51], \"black\", [86, 113, 127], \"teal\", \"orchid\", \"pink\", [108, 110, 78, 0.32184669570841495], \"yellow\", [214, 108, 203], [190, 133, 116], \"sienna\", \"sienna\", [178, 165, 92], \"bisque\", [40, 188, 159], \"purple\", \"white\", \"yellow\", \"olive\", \"orange\", \"peru\", [130, 51, 157], [18, 150, 242, 0.9594513931198525], [31, 40, 8], \"khaki\", \"bisque\", [94, 250, 155, 0.4039707643645265], \"purple\", [253, 255, 79], [214, 53, 228, 0.5463664997714781], [229, 149, 20], [251, 119, 117], [48, 138, 94], [14, 177, 230], \"magenta\", [32, 241, 32], [89, 63, 237], \"gray\", [143, 204, 8, 0.26035436190357264], [77, 251, 241], [22, 201, 241, 0.2902943412037535], \"orchid\", [0, 67, 130], [161, 1, 29], \"lavender\", [217, 39, 158], \"indigo\", \"thistle\", [145, 91, 201], [44, 143, 176], \"lime\", [174, 149, 29, 0.31475581042865963], \"khaki\", [11, 138, 115, 0.3218710946422525], [143, 94, 106, 0.6201153897184918], [111, 180, 40], \"wheat\", \"teal\", \"white\", [201, 193, 77], \"cyan\", \"bisque\", [201, 108, 38], [85, 98, 227], [170, 41, 170], \"orange\", [208, 54, 82], \"blue\", \"white\", [3, 34, 192], [31, 39, 169, 0.7603500253499714], [209, 250, 12], \"aqua\", [238, 233, 134, 0.18853011813535747], \"lavender\", \"wheat\", [214, 113, 144, 0.9197251498905594], [31, 211, 158], \"fuchsia\", [146, 114, 144], \"khaki\", \"wheat\", \"orchid\", \"cornsilk\"], \"bus_label_font_size\": 87702, \"bus_label_offset\": [14992.124856072842, -70426.57766719483]}, \"base_requests\": [{\"type\": \"Stop\", \"name\": \"A ASTANOVKA AFNA\", \"latitude\": 55.611087, \"longitude\": 37.20829, \"road_distances\": {}}, {\"type\": \"Stop\", \"name\": \"B G\", \"latitude\": 55.595884, \"longitude\": 37.209755, \"road_distances\": {\"A ASTANOVKA AFNA\": 1000, \"C\": 1000}}, {\"type\": \"Stop\", \"name\": \"C\", \"latitude\": 55.632761, \"longitude\": 37.333324, \"road_distances\": {\"A ASTANOVKA AFNA\": 1000}}, {\"type\": \"Bus\", \"name\": \"ABC\", \"stops\": [\"A ASTANOVKA AFNA\", \"B G\", \"C\", \"A ASTANOVKA AFNA\"], \"is_roundtrip\": true}], \"stat_requests\": [{\"id\": 445724299, \"type\": \"Bus\", \"name\": \"ABC\"}]}"
 	};
+    ifstream fin("TestJSON.txt");
+    //ofstream fout("OutSVG.svg");
 
-	transport_catalogue::TransportCatalogue t_catalogue;
+    try {
+        transport_catalogue::TransportCatalogue t_catalogue;
 
-	input::InputReader input(t_catalogue);
-	input.FillCatalogue(move(input::read::ReadQuery(test_input)));
-
-	statr::StatReader output(t_catalogue);
-	output.GetStat(test_input);
+        input::JsonReader reader(t_catalogue);
+        reader.ProcessingQueries(LoadJSON(fin), cout);
+    } catch (const exception& except) {
+        cout << except.what();
+    }
 	return 0;
 }
