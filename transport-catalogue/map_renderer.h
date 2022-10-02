@@ -55,12 +55,12 @@ namespace renderer {
         svg::Document GetImageSVG(std::vector<const Bus*>&& buses) const;
 
 	private:
-        svg::Polyline GetLineBus(const Bus* bus, const SphereProjector& sphere_projector) const;
+        svg::Polyline CreateLineBus(const Bus* bus, const SphereProjector& sphere_projector) const;
 
-        void DrawFirstLayerGetLinesBuses(svg::Document& image, const std::vector<const Bus*> buses, const SphereProjector& proj) const;
-        void DrawSecondLayerGetNamesBuses(svg::Document& image, const std::vector<const Bus*> buses, const SphereProjector& proj) const;
-        void DrawThirdLayerGetStopsSymbols(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const;
-        void DrawFourthLayerGetStopsNames(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const;
+        void DrawLayerLinesBuses(svg::Document& image, const std::vector<const Bus*> buses, const SphereProjector& proj) const;
+        void DrawLayerNamesBuses(svg::Document& image, const std::vector<const Bus*> buses, const SphereProjector& proj) const;
+        void DrawLayerStopsSymbols(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const;
+        void DrawLayerStopsNames(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const;
 
 		MapVisualizationSettings settings_{};
 	};

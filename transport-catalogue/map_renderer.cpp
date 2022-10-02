@@ -27,14 +27,16 @@ namespace renderer {
             return geo_coords_all_stops;
         }
 
+        // для рисования остановок в нужном порядке
         vector<const Stop*> GetAllStopsSorted(const vector<const Bus*>& buses) {
             unordered_set<const Stop*> all_stops;
             all_stops.reserve(buses.size() * 2); // т.к. у каждого маршрута не меньше 2-х остановок
             for (const Bus* bus : buses) {
-                for (const Stop* stop : bus->stops) {
-                    all_stops.insert(stop);
-                }
+                all_stops.insert(bus->stops.begin(), bus->stops.end());
             }
+            // используется un_set и vector, вместо set, т.к. сложность добавления у un_set ниже, 
+            // а в векторе сортируем ОДИН раз, вместо того чтобы это делать каждый раз при добавлении в set
+            // Также, если изменится порядок сортировки остановок, будет намного проще изменить
             vector<const Stop*> all_stops_sorted(all_stops.size());
             move(all_stops.begin(), all_stops.end(), all_stops_sorted.begin());
             sort(all_stops_sorted.begin(), all_stops_sorted.end(), [](const Stop* lhs, const Stop* rhs) {
@@ -93,7 +95,7 @@ namespace renderer {
         : settings_(settings) {
     }
 
-    Polyline MapRenderer::GetLineBus(const Bus* bus, const SphereProjector& sphere_projector) const {
+    Polyline MapRenderer::CreateLineBus(const Bus* bus, const SphereProjector& sphere_projector) const {
         Polyline line_bus;
         for (const Stop* stop : bus->stops) {
             line_bus.AddPoint(sphere_projector(stop->coordinates));
@@ -106,13 +108,13 @@ namespace renderer {
         return line_bus;
     }
 
-    void MapRenderer::DrawFirstLayerGetLinesBuses(Document& image, const vector<const Bus*> buses, const SphereProjector& proj) const {
+    void MapRenderer::DrawLayerLinesBuses(Document& image, const vector<const Bus*> buses, const SphereProjector& proj) const {
         uint32_t count_colors = 0;
         for (const Bus* bus : buses) {
             if (bus->stops.size() == 0) {
                 continue;
             }
-            Polyline line_one_bus = GetLineBus(bus, proj);
+            Polyline line_one_bus = CreateLineBus(bus, proj);
             line_one_bus.SetStrokeWidth(settings_.line_width);
             line_one_bus.SetStrokeLineJoin(StrokeLineJoin::ROUND).SetStrokeLineCap(StrokeLineCap::ROUND);
             line_one_bus.SetStrokeColor(settings_.color_palette[count_colors++ % settings_.color_palette.size()]).SetFillColor(NoneColor);
@@ -120,7 +122,7 @@ namespace renderer {
         }
     }
 
-    void MapRenderer::DrawSecondLayerGetNamesBuses(Document& image, const vector<const Bus*> buses, const SphereProjector& proj) const {
+    void MapRenderer::DrawLayerNamesBuses(Document& image, const vector<const Bus*> buses, const SphereProjector& proj) const {
         uint32_t count_colors = 0;
         for (const Bus* bus : buses) {
             if (bus->stops.size() == 0) {
@@ -142,7 +144,7 @@ namespace renderer {
         }
     }
 
-    void MapRenderer::DrawThirdLayerGetStopsSymbols(Document& image, const vector<const Stop*> stops, const SphereProjector& proj) const {
+    void MapRenderer::DrawLayerStopsSymbols(Document& image, const vector<const Stop*> stops, const SphereProjector& proj) const {
         for (const Stop* stop : stops) {
             Circle symbol_stop;
             symbol_stop.SetCenter(proj(stop->coordinates)).SetRadius(settings_.stop_radius).SetFillColor("white"s);
@@ -150,7 +152,7 @@ namespace renderer {
         }
     }
 
-    void MapRenderer::DrawFourthLayerGetStopsNames(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const {
+    void MapRenderer::DrawLayerStopsNames(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const {
         for (const Stop* stop : stops) {
             Text background = labels::CreateBackground(settings_, stop, stop->name, proj, false);
             Text name = labels::CreateLabel(settings_, stop, proj);
@@ -163,11 +165,11 @@ namespace renderer {
         Document image;
         vector<Coordinates> geo_coords_stops_all_buses = detail::GetCoordinatesStopsAllBuses(buses);
         const SphereProjector proj(geo_coords_stops_all_buses.begin(), geo_coords_stops_all_buses.end(), settings_.width_image, settings_.height_image, settings_.padding);
-        DrawFirstLayerGetLinesBuses(image, buses, proj);
-        DrawSecondLayerGetNamesBuses(image, buses, proj);
+        DrawLayerLinesBuses(image, buses, proj);
+        DrawLayerNamesBuses(image, buses, proj);
         vector<const Stop*> all_stops = detail::GetAllStopsSorted(buses);
-        DrawThirdLayerGetStopsSymbols(image, all_stops, proj);
-        DrawFourthLayerGetStopsNames(image, all_stops, proj);
+        DrawLayerStopsSymbols(image, all_stops, proj);
+        DrawLayerStopsNames(image, all_stops, proj);
 
         return image;
     }

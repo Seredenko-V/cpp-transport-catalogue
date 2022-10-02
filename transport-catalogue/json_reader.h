@@ -1,5 +1,6 @@
 #pragma once
 #include "json.h"
+#include "json_builder.h"
 #include "transport_catalogue.h"
 #include "domain.h"
 #include "map_renderer.h"
@@ -20,9 +21,9 @@
 using DictDistancesBetweenStops = std::unordered_map<std::string, std::unordered_map<std::string, int>>;
 
 namespace get_inform {
-	json::Dict GetInformBus(const int id_query, const BusInfo& stat_bus);
-	json::Dict GetListBuses(const int id_query, const StopBuses& stop_buses);
-	json::Dict GetImageMapJSON(const int id_query, std::string&& text);
+	json::Dict FormInformBus(const int id_query, const BusInfo& stat_bus);
+	json::Dict FormListBuses(const int id_query, const StopBuses& stop_buses);
+	json::Dict FormImageMapJSON(const int id_query, std::string&& text);
 
 	namespace detail {
 		json::Array SortNameBus(const std::unordered_set<transport_catalogue::cBusPtr>& list_buses);
@@ -48,7 +49,7 @@ namespace input {
 		void FillBuses(json::Array&& buses_queries);
 
 		void GetImageMap(const renderer::MapRenderer& renderer, std::ostream& out);
-		void GetInformation(const renderer::MapRenderer& renderer, json::Array&& print_queries, std::ostream& out);
+		json::Document FormResponsesToRequests(const renderer::MapRenderer& renderer, json::Array&& print_queries);
 
 
 		transport_catalogue::TransportCatalogue& transport_catalogue_;

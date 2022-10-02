@@ -69,7 +69,7 @@ namespace get_inform {
 		}
 	} // namespace detail
 
-	Dict GetInformBus(const int id_query, const BusInfo& stat_bus) {
+	Dict FormInformBus(const int id_query, const BusInfo& stat_bus) {
 		if (stat_bus.is_empty) {
 			return { {"request_id"s, id_query}, {"error_message"s, "not found"s} };
 		}
@@ -81,14 +81,14 @@ namespace get_inform {
 		};
 	}
 
-	Dict GetListBuses(const int id_query, const StopBuses& stop_buses) {
+	Dict FormListBuses(const int id_query, const StopBuses& stop_buses) {
 		if (stop_buses.is_empty) {
 			return { {"request_id"s, id_query}, {"error_message"s, "not found"s} };
 		}
 		return { {"request_id"s, id_query}, {"buses"s, detail::SortNameBus(stop_buses.buses_stop)} };
 	}
 
-	Dict GetImageMapJSON(const int id_query, std::string&& text) {
+	Dict FormImageMapJSON(const int id_query, std::string&& text) {
 		return { {"request_id"s, id_query}, {"map"s, text} };
 	}
 
@@ -106,7 +106,7 @@ namespace input {
 
 	void JsonReader::AddStop(Dict&& stop, DictDistancesBetweenStops& distances_between_stops) {
 		string name_this_stop = stop.at("name"s).AsString();
-		const json::Dict& near_stops = stop.at("road_distances"s).AsMap();
+		const json::Dict& near_stops = stop.at("road_distances"s).AsDict();
 		for (const auto& [name_other_stop, distance] : near_stops) {
 			distances_between_stops[name_this_stop][name_other_stop] = distance.AsInt();
 		}
@@ -123,7 +123,7 @@ namespace input {
 
 	void JsonReader::FillBuses(Array&& buses_queries) {
 		for (const Node& node : buses_queries) {
-			json::Dict inform_bus = node.AsMap();
+			json::Dict inform_bus = node.AsDict();
 			string name_this_bus = inform_bus.at("name"s).AsString();
 			json::Array stops_bus = inform_bus.at("stops"s).AsArray();
 			vector<string> stops(stops_bus.size());
@@ -140,11 +140,11 @@ namespace input {
 		for (const Node& query : queries) {
 			// согласно условию, в запросе всегда присутствует ключ "type".
 			// Поэтому не боимся упасть на .at() и отсутствует .count()
-			assert(query.AsMap().count("type"s));
-			if (query.AsMap().at("type"s) == "Bus"s) {
+			assert(query.AsDict().count("type"s));
+			if (query.AsDict().at("type"s) == "Bus"s) {
 				buses_queries.emplace_back(move(query));
 			} else {
-				AddStop(move(query.AsMap()), distances_between_stops);
+				AddStop(move(query.AsDict()), distances_between_stops);
 			}
 		}
 		FillDistanceStops(move(distances_between_stops));
@@ -158,35 +158,37 @@ namespace input {
 		//request_handler.RenderMap().Render(fout);
 	}
 
-	void JsonReader::GetInformation(const MapRenderer& renderer, Array&& print_queries, ostream& out) {
+	Document JsonReader::FormResponsesToRequests(const MapRenderer& renderer, Array&& print_queries) {
 		using namespace get_inform;
-		Array result_find;
-		result_find.reserve(print_queries.size());
+		Builder result_find;
+		result_find.StartArray();
 
 		for (const Node& query : print_queries) {
-			Dict text_query = query.AsMap();
+			Dict text_query = query.AsDict();
 			if (text_query.at("type"s) == "Bus"s) {
-				result_find.emplace_back(GetInformBus(text_query.at("id"s).AsInt(), transport_catalogue_.GetBusInfo(text_query.at("name"s).AsString())));
+				result_find.Value(FormInformBus(text_query.at("id"s).AsInt(), transport_catalogue_.GetBusInfo(text_query.at("name"s).AsString())));
 			} else if (text_query.at("type"s) == "Stop"s) {
-				result_find.emplace_back(GetListBuses(text_query.at("id"s).AsInt(), transport_catalogue_.GetListBusesStop(text_query.at("name"s).AsString())));
+				result_find.Value(FormListBuses(text_query.at("id"s).AsInt(), transport_catalogue_.GetListBusesStop(text_query.at("name"s).AsString())));
 			} else {
 				ostringstream image;
 				GetImageMap(renderer, image);
-				result_find.emplace_back(GetImageMapJSON(text_query.at("id"s).AsInt(), image.str()));
+				result_find.Value(FormImageMapJSON(text_query.at("id"s).AsInt(), image.str()));
 			}
 		}
-		PrintValue(result_find, out);
+		result_find.EndArray();
+		return Document(result_find.Build());
 	}
 
 	void JsonReader::ProcessingQueries(Document&& document_JSON, ostream& out) {
 		// AsMap() т.к. JSON принимаем как словарь, согласно условию
-		Array data_catalogue = document_JSON.GetRoot().AsMap().at("base_requests"s).AsArray();
+		Array data_catalogue = document_JSON.GetRoot().AsDict().at("base_requests"s).AsArray();
 		FillCatalogue(move(data_catalogue));
 
-		Dict render_settings = document_JSON.GetRoot().AsMap().at("render_settings"s).AsMap();
+		Dict render_settings = document_JSON.GetRoot().AsDict().at("render_settings"s).AsDict();
 		MapRenderer renderer(get_inform::detail::GetSettings(move(render_settings)));
 
-		Array requests = document_JSON.GetRoot().AsMap().at("stat_requests"s).AsArray();
-		GetInformation(renderer, move(requests), out);
+		Array requests = document_JSON.GetRoot().AsDict().at("stat_requests"s).AsArray();
+		Document responses_to_queries = FormResponsesToRequests(renderer, move(requests));
+		Print(responses_to_queries, out);
 	}
 }
