@@ -25,6 +25,8 @@ namespace json {
         using variant::variant;
         using Value = variant;
 
+        Node(Value&& value);
+
         bool IsInt() const;
         bool IsDouble() const;
         bool IsPureDouble() const;

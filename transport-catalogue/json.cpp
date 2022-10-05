@@ -5,6 +5,9 @@
 using namespace std;
 
 namespace json {
+    Node::Node(Value&& value) {
+        this->swap(value);
+    }
 
     namespace {
         using namespace std::literals;

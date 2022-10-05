@@ -25,7 +25,6 @@ namespace json {
 	private:
 		Node root_;
 		std::vector<Node*> nodes_stack_;
-		std::optional<std::string> key_;
 		void AddNode(Node node);
 	};
 

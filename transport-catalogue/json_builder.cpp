@@ -47,7 +47,7 @@ namespace json {
 		if (nodes_stack_.empty() && !root_.IsNull()) {
 			throw logic_error("Attempt to call method \"Key\" with a ready object"s);
 		}
-		if (key_.has_value()) {
+		if (nodes_stack_.back()->IsString()) {
 			throw logic_error("Attempt to call method \"Key\" immediately after another method \"Key\""s);
 		}
 		if (!nodes_stack_.back()->IsDict()) {
@@ -55,9 +55,7 @@ namespace json {
 		}
 
 		if (nodes_stack_.back()->IsDict()) {
-			Dict& dict = get<Dict>(nodes_stack_.back()->GetValue());
-			dict[key];
-			key_ = key;
+			AddNode(Node(move(key)));
 		}
 		return *this;
 	}
@@ -66,26 +64,11 @@ namespace json {
 		if (nodes_stack_.empty() && !root_.IsNull()) {
 			throw logic_error("Attempt to call method \"Value\" with a ready object"s);
 		}
-		if (!key_.has_value() && !nodes_stack_.empty() && !nodes_stack_.back()->IsArray()) {
+		if (!nodes_stack_.empty() && !nodes_stack_.back()->IsString() && !nodes_stack_.back()->IsArray()) {
 			throw logic_error("Method \"Value\" is called outside of Array or Dict"s);
 		}
 
-		Node node;
-		if (holds_alternative<string>(value)) {
-			node = Node(get<string>(value));
-		} else if (holds_alternative<Array>(value)) {
-			node = Node(get<Array>(value));
-		} else if (holds_alternative<Dict>(value)) {
-			node = Node(get<Dict>(value));
-		} else if (holds_alternative<int>(value)) {
-			node = Node(get<int>(value));
-		} else if (holds_alternative<double>(value)) {
-			node = Node(get<double>(value));
-		} else if (holds_alternative<bool>(value)) {
-			node = Node(get<bool>(value));
-		}
-
-		AddNode(node);
+		AddNode(Node(move(value)));
 		nodes_stack_.pop_back();
 		return *this;
 	}
@@ -104,11 +87,14 @@ namespace json {
 		if (nodes_stack_.empty()) {
 			root_ = node;
 			nodes_stack_.push_back(&root_);
-		} else if (nodes_stack_.back()->IsDict() && key_.has_value()) {
+		} else if (nodes_stack_.back()->IsDict()) {
+			nodes_stack_.push_back(&node);
+		} else if (nodes_stack_.back()->IsString()) {
+			string key = nodes_stack_.back()->AsString();
+			nodes_stack_.pop_back();
 			Dict& dict = get<Dict>(nodes_stack_.back()->GetValue());
-			dict[key_.value()] = node;
-			nodes_stack_.push_back(&dict[key_.value()]);
-			key_.reset();
+			dict[key] = node;
+			nodes_stack_.push_back(&dict[key]);
 		} else if (nodes_stack_.back()->IsArray()) {
 			Array& arr = get<Array>(nodes_stack_.back()->GetValue());
 			arr.push_back(node);
