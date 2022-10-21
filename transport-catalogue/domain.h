@@ -10,13 +10,18 @@
 struct Stop {
 	std::string name;
 	geo::Coordinates coordinates;
+	size_t id = 0;
 };
+
+using cStopPtr = const Stop*;
 
 struct Bus {
 	std::string name;
-	std::vector<Stop*> stops;
+	std::vector<cStopPtr> stops;
 	bool is_ring; // является ли маршрут кольцевым
 };
+
+using cBusPtr = const Bus*;
 
 struct BusInfo {
 	bool is_empty = true;
@@ -33,3 +38,8 @@ struct StopBuses {
 	std::string_view name;
 	std::unordered_set<const Bus*>& buses_stop;
 };
+
+//struct RoutingSettings {
+//	int bus_wait_time_minutes = 0; // время ожидания автобуса на остановке, в минутах
+//	int bus_velocity_km_h = 0; // скорость автобуса, в км/ч
+//};

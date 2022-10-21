@@ -6,7 +6,7 @@ using namespace svg;
 
 namespace renderer {
     namespace detail {
-        vector<Coordinates> GetCoordinatesStopsBus(const vector<Stop*>& stops) {
+        vector<Coordinates> GetCoordinatesStopsBus(const vector<cStopPtr>& stops) {
             vector<Coordinates> geo_coords(stops.size());
             for (size_t i = 0; i < geo_coords.size(); ++i) {
                 geo_coords[i] = stops[i]->coordinates;
@@ -101,7 +101,7 @@ namespace renderer {
             line_bus.AddPoint(sphere_projector(stop->coordinates));
         }
         if (!bus->is_ring) {
-            for (vector<Stop*>::const_reverse_iterator it = bus->stops.rbegin() + 1; it != bus->stops.rend(); ++it) {
+            for (vector<cStopPtr>::const_reverse_iterator it = bus->stops.rbegin() + 1; it != bus->stops.rend(); ++it) {
                 line_bus.AddPoint(sphere_projector((*it)->coordinates));
             }
         }

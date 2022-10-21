@@ -92,6 +92,33 @@ namespace get_inform {
 		return { {"request_id"s, id_query}, {"map"s, text} };
 	}
 
+	Dict FormOptimalRoute(const int id_query, string_view stop_from, string_view stop_to, const transpotr_router::TransportRouter& router) {
+		const std::optional<const std::vector<const transpotr_router::RouteConditions*>> route = router.BuildRoute(stop_from, stop_to);
+		if (!route.has_value()) {
+			return { {"request_id"s, id_query}, {"error_message"s, "not found"s} };
+		}
+		double total_time = 0.0;
+		Array items;
+		items.reserve(route.value().size());
+
+		for (const auto it : route.value()) {
+			Dict dict = { {"type"s, "Wait"s},
+							{ "stop_name"s, it->from->name },
+							{"time"s, it->trip.waiting_time_minutes } };
+			items.push_back(dict);
+			total_time += it->trip.waiting_time_minutes;
+
+			dict = { {"type"s, "Bus"s},
+						{"bus"s, it->bus->name},
+						{"span_count"s, it->trip.stops_number},
+						{"time"s, it->trip.travel_time_minutes} };
+
+			items.push_back(dict);
+			total_time += it->trip.travel_time_minutes;
+		}
+		return { {"request_id"s, id_query}, {"total_time"s, total_time}, {"items"s, items}};
+	}
+
 } //namespace get_inform
 
 namespace input {
@@ -100,17 +127,19 @@ namespace input {
 		return Load(input_JSON);
 	}
 
-	JsonReader::JsonReader(transport_catalogue::TransportCatalogue& transport_catalogue)
-		: transport_catalogue_(transport_catalogue) {
+	JsonReader::JsonReader(transport_catalogue::TransportCatalogue& transport_catalogue, transpotr_router::TransportRouter& transpotr_router)
+		: transport_catalogue_(transport_catalogue)
+		, transpotr_router_(transpotr_router) {
 	}
 
 	void JsonReader::AddStop(Dict&& stop, DictDistancesBetweenStops& distances_between_stops) {
+		static size_t id = 0;
 		string name_this_stop = stop.at("name"s).AsString();
 		const json::Dict& near_stops = stop.at("road_distances"s).AsDict();
 		for (const auto& [name_other_stop, distance] : near_stops) {
 			distances_between_stops[name_this_stop][name_other_stop] = distance.AsInt();
 		}
-		transport_catalogue_.AddStop(move(name_this_stop), stop.at("latitude"s).AsDouble(), stop.at("longitude"s).AsDouble());
+		transport_catalogue_.AddStop(move(name_this_stop), stop.at("latitude"s).AsDouble(), stop.at("longitude"s).AsDouble(), id++);
 	}
 
 	void JsonReader::FillDistanceStops(DictDistancesBetweenStops&& distances_between_stops) {
@@ -169,6 +198,8 @@ namespace input {
 				result_find.Value(FormInformBus(text_query.at("id"s).AsInt(), transport_catalogue_.GetBusInfo(text_query.at("name"s).AsString())));
 			} else if (text_query.at("type"s) == "Stop"s) {
 				result_find.Value(FormListBuses(text_query.at("id"s).AsInt(), transport_catalogue_.GetListBusesStop(text_query.at("name"s).AsString())));
+			} else if (text_query.at("type"s) == "Route"s) {
+				result_find.Value(FormOptimalRoute(text_query.at("id"s).AsInt(), text_query.at("from"s).AsString(), text_query.at("to"s).AsString(), transpotr_router_));
 			} else {
 				ostringstream image;
 				GetImageMap(renderer, image);
@@ -180,9 +211,12 @@ namespace input {
 	}
 
 	void JsonReader::ProcessingQueries(Document&& document_JSON, ostream& out) {
-		// AsMap() т.к. JSON принимаем как словарь, согласно условию
 		Array data_catalogue = document_JSON.GetRoot().AsDict().at("base_requests"s).AsArray();
 		FillCatalogue(move(data_catalogue));
+
+		// новый запрос
+		Dict routing_settings = document_JSON.GetRoot().AsDict().at("routing_settings"s).AsDict();
+		transpotr_router_.Initialization({ routing_settings.at("bus_velocity"s).AsInt(), routing_settings.at("bus_wait_time"s).AsInt() });
 
 		Dict render_settings = document_JSON.GetRoot().AsDict().at("render_settings"s).AsDict();
 		MapRenderer renderer(get_inform::detail::GetSettings(move(render_settings)));

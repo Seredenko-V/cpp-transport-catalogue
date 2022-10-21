@@ -5,8 +5,8 @@ using namespace geo;
 
 namespace transport_catalogue {
 
-	void TransportCatalogue::AddStop(std::string&& name_stop, double latitude, double longitude) {
-		stops_.push_back({ name_stop, {latitude,  longitude} });
+	void TransportCatalogue::AddStop(std::string&& name_stop, double latitude, double longitude, size_t id) {
+		stops_.push_back({ name_stop, {latitude,  longitude}, id });
 		stopname_to_stop_[stops_.back().name] = &stops_.back();
 	}
 
@@ -22,7 +22,7 @@ namespace transport_catalogue {
 	}
 
 	void TransportCatalogue::AddBus(string&& name, vector<string>&& stops, bool is_ring) {
-		vector<Stop*> adr_stops(stops.size());
+		vector<cStopPtr> adr_stops(stops.size());
 		for (size_t i = 0; i < adr_stops.size(); ++i) {
 			adr_stops[i] = stopname_to_stop_.find(stops[i])->second;
 		}
@@ -55,8 +55,8 @@ namespace transport_catalogue {
 
 	size_t TransportCatalogue::GetNumUniqueStops(cBusPtr bus) const {
 		// уникальные - названи€ которых внутри Ё“ќ√ќ маршрута не повтор€ютс€
-		unordered_set<Stop*> unique_stops;
-		for (Stop* const& stop : bus->stops) {
+		unordered_set<cStopPtr> unique_stops;
+		for (cStopPtr const& stop : bus->stops) {
 			unique_stops.insert(stop);
 		}
 		return unique_stops.size();
@@ -64,7 +64,7 @@ namespace transport_catalogue {
 
 	double TransportCatalogue::CalculatingGeographicalDistance(cBusPtr bus) const {
 		double route_length = 0;
-		vector<Stop*> stops = bus->stops;
+		vector<cStopPtr> stops = bus->stops;
 		for (size_t i = 0; i < stops.size() - 1; ++i) {
 			route_length += ComputeDistance(stops[i]->coordinates, stops[i + 1]->coordinates);
 		}
@@ -77,7 +77,7 @@ namespace transport_catalogue {
 
 	size_t TransportCatalogue::CalculatingRoadDistance(cBusPtr bus) const {
 		size_t route_length = 0;
-		vector<Stop*> stops = bus->stops;
+		vector<cStopPtr> stops = bus->stops;
 
 		for (size_t i = 0; i < stops.size() - 1; ++i) {
 			route_length += GetDistanceBetweenTwoStops(stops[i], stops[i + 1]);
@@ -117,4 +117,11 @@ namespace transport_catalogue {
 		return all_sorted_buses;
 	}
 
+	const DistancesBetweenStops& TransportCatalogue::GetDistancesBetweenAllStops() const {
+		return distance_between_stops_;
+	}
+
+	const std::unordered_map<std::string_view, Stop*>& TransportCatalogue::GetAllStops() const {
+		return stopname_to_stop_;
+	}
 }

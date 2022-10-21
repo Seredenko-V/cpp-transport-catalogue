@@ -1,5 +1,6 @@
 #pragma once
 #include "domain.h"
+#include "graph.h"
 
 #include <iostream>
 #include <string_view>
@@ -15,8 +16,8 @@
 
 namespace transport_catalogue {
 
-	using cStopPtr = const Stop*;
-	using cBusPtr = const Bus*;
+	//using cStopPtr = const Stop*;
+	//using cBusPtr = const Bus*;
 
 	namespace detail {
 		struct HasherDistanceTable {
@@ -29,10 +30,11 @@ namespace transport_catalogue {
 		};
 	}
 
-	class TransportCatalogue
-	{
+	using DistancesBetweenStops = std::unordered_map<std::pair<cStopPtr, cStopPtr>, size_t, detail::HasherDistanceTable>;
+
+	class TransportCatalogue {
 	public:
-		void AddStop(std::string&& name_stop, double latitude, double longitude);
+		void AddStop(std::string&& name_stop, double latitude, double longitude, size_t id);
 		void AddBus(std::string&& name, std::vector<std::string>&& stops, bool is_ring);
 		void SetDistanceBetweenStops(cStopPtr first_stop, cStopPtr second_stop, size_t distance_to_neighboring);
 
@@ -41,6 +43,9 @@ namespace transport_catalogue {
 		BusInfo GetBusInfo(std::string_view name_bus) const;
 		const StopBuses GetListBusesStop(std::string_view name_stop);
 		std::vector<cBusPtr> GetAllBusesSorted() const;
+		const DistancesBetweenStops& GetDistancesBetweenAllStops() const;
+		const std::unordered_map<std::string_view, Stop*>& GetAllStops() const;
+		size_t GetDistanceBetweenTwoStops(cStopPtr from, cStopPtr to) const;
 
 	private:
 		void FillListsBusesStop(cBusPtr bus);
@@ -48,9 +53,9 @@ namespace transport_catalogue {
 		size_t GetNumUniqueStops(cBusPtr bus) const;
 
 		double CalculatingGeographicalDistance(cBusPtr bus) const;
-		size_t GetDistanceBetweenTwoStops(cStopPtr first, cStopPtr second) const;
 		size_t CalculatingRoadDistance(cBusPtr bus) const;
 
+	private:
 		std::deque<Stop> stops_; // хранятся сами данные об остановках
 		std::deque<Bus> buses_; // хранятся данные о маршрутах
 
@@ -62,6 +67,6 @@ namespace transport_catalogue {
 		// после запроса, а "кэш" хранится на сервере
 		std::unordered_map<cStopPtr, std::unordered_set<cBusPtr>> cache_buses_stops_;
 
-		std::unordered_map<std::pair<cStopPtr, cStopPtr>, size_t, detail::HasherDistanceTable> distance_between_stops_;
+		DistancesBetweenStops distance_between_stops_;
 	};
 }

@@ -35,7 +35,7 @@ namespace renderer {
     class SphereProjector;
 
     namespace detail {
-        std::vector<geo::Coordinates> GetCoordinatesStopsBus(const std::vector<Stop*>& stops);
+        std::vector<geo::Coordinates> GetCoordinatesStopsBus(const std::vector<cStopPtr>& stops);
         std::vector<geo::Coordinates> GetCoordinatesStopsAllBuses(const std::vector<const Bus*>& buses);
         std::vector<const Stop*> GetAllStopsSorted(const std::vector<const Bus*>& buses);
     }

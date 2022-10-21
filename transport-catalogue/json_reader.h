@@ -6,6 +6,7 @@
 #include "map_renderer.h"
 #include "request_handler.h"
 #include "svg.h"
+#include "transport_router.h"
 
 #include <cassert>
 #include <vector>
@@ -24,9 +25,10 @@ namespace get_inform {
 	json::Dict FormInformBus(const int id_query, const BusInfo& stat_bus);
 	json::Dict FormListBuses(const int id_query, const StopBuses& stop_buses);
 	json::Dict FormImageMapJSON(const int id_query, std::string&& text);
+	json::Dict FormOptimalRoute(const int id_query, std::string_view stop_from, std::string_view stop_to, const transpotr_router::TransportRouter& router);
 
 	namespace detail {
-		json::Array SortNameBus(const std::unordered_set<transport_catalogue::cBusPtr>& list_buses);
+		json::Array SortNameBus(const std::unordered_set<cBusPtr>& list_buses);
 		svg::Color GetColor(json::Array&& color);
 		renderer::MapVisualizationSettings GetSettings(json::Dict&& settings);
 	}
@@ -37,11 +39,14 @@ namespace input {
 
 	class JsonReader {
 	public:
-		JsonReader(transport_catalogue::TransportCatalogue& transport_catalogue);
+		JsonReader(transport_catalogue::TransportCatalogue& transport_catalogue,
+			transpotr_router::TransportRouter& transpotr_router);
 		void ProcessingQueries(json::Document&& document_JSON, std::ostream& out);
 
 	private:
 		void FillCatalogue(json::Array&& queries);
+		//RoutingSettings ExtractRoutingSettings(json::Dict&& dict_settings);
+
 
 		void AddStop(json::Dict&& stop, DictDistancesBetweenStops& distances_between_stops);
 		void FillDistanceStops(DictDistancesBetweenStops&& distances_between_stops);
@@ -51,8 +56,9 @@ namespace input {
 		void GetImageMap(const renderer::MapRenderer& renderer, std::ostream& out);
 		json::Document FormResponsesToRequests(const renderer::MapRenderer& renderer, json::Array&& print_queries);
 
-
+	private:
 		transport_catalogue::TransportCatalogue& transport_catalogue_;
+		transpotr_router::TransportRouter& transpotr_router_;
 	};
 
 }

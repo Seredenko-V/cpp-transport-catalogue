@@ -99,10 +99,11 @@ namespace input {
 		for (string& text_query : queries) {
 			size_t position_space = text_query.find_first_of(' ');
 			if (text_query.substr(0, text_query.find_first_of(' ')) == "Stop"s) {
+				static size_t id = 0;
 				size_t position_colon = text_query.find_first_of(':');
 				string name_stop = move(text_query.substr(position_space + 1, position_colon - (position_space + 1)));
 				inform_blocks_stops[name_stop] = (SplitIntoInformBlocks(move(text_query.substr(position_colon + 1)), ','));
-				transport_catalogue_.AddStop(move(name_stop), atof(inform_blocks_stops.at(name_stop)[0].c_str()), atof(inform_blocks_stops.at(name_stop)[1].c_str()));
+				transport_catalogue_.AddStop(move(name_stop), atof(inform_blocks_stops.at(name_stop)[0].c_str()), atof(inform_blocks_stops.at(name_stop)[1].c_str()), id++);
 			} else {
 				// добавление перечня остановок в вектор строк без ключевого слова "Bus"
 				text_buses.emplace_back(move(text_query.substr(position_space + 1)));
