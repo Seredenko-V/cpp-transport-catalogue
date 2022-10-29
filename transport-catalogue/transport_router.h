@@ -8,6 +8,7 @@
 #include <string>
 #include <memory>
 #include <stdexcept>
+#include <deque>
 
 namespace transpotr_router {
 	using DictDistancesBetweenStops = std::unordered_map<std::string, std::unordered_map<std::string, int>>;

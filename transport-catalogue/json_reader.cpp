@@ -23,7 +23,7 @@ namespace get_inform {
 			return list_buses_arr;
 		}
 
-		svg::Color GetColor(json::Array&& color) {
+		svg::Color GetColor(const json::Array& color) {
 			using namespace svg;
 			if (color.size() == 1) {
 				return color.front().AsString();
@@ -34,7 +34,7 @@ namespace get_inform {
 			}
 		}
 
-		renderer::MapVisualizationSettings GetSettings(json::Dict&& settings) {
+		renderer::MapVisualizationSettings GetSettings(const json::Dict& settings) {
 			renderer::MapVisualizationSettings visual_settings;
 
 			visual_settings.width_image = settings.at("width"s).AsDouble();
@@ -71,52 +71,75 @@ namespace get_inform {
 
 	Dict FormInformBus(const int id_query, const BusInfo& stat_bus) {
 		if (stat_bus.is_empty) {
-			return { {"request_id"s, id_query}, {"error_message"s, "not found"s} };
+			return Builder{}.StartDict().
+				Key("request_id"s).Value(id_query).
+				Key("error_message"s).Value("not found"s).
+				EndDict().Build().AsDict();
 		}
-		return { {"request_id"s, id_query}, 
-				 {"stop_count"s, static_cast<int>(stat_bus.number_stops)}, 
-				 {"unique_stop_count"s, static_cast<int>(stat_bus.number_unique_stops)},
-				 {"route_length"s, static_cast<int>(stat_bus.road_distance)},
-				 {"curvature"s, stat_bus.curvature}
-		};
+		return Builder{}.StartDict().
+			Key("request_id"s).Value(id_query).
+			Key("stop_count"s).Value(static_cast<int>(stat_bus.number_stops)).
+			Key("unique_stop_count"s).Value(static_cast<int>(stat_bus.number_unique_stops)).
+			Key("route_length"s).Value(static_cast<int>(stat_bus.road_distance)).
+			Key("curvature"s).Value(stat_bus.curvature).
+			EndDict().Build().AsDict();
 	}
 
 	Dict FormListBuses(const int id_query, const StopBuses& stop_buses) {
 		if (stop_buses.is_empty) {
-			return { {"request_id"s, id_query}, {"error_message"s, "not found"s} };
+			return Builder{}.StartDict().
+				Key("request_id"s).Value(id_query).
+				Key("error_message"s).Value("not found"s).
+				EndDict().Build().AsDict();
 		}
-		return { {"request_id"s, id_query}, {"buses"s, detail::SortNameBus(stop_buses.buses_stop)} };
+		return Builder{}.StartDict().
+			Key("request_id"s).Value(id_query).
+			Key("buses"s).Value(detail::SortNameBus(stop_buses.buses_stop)).
+			EndDict().Build().AsDict();
 	}
 
-	Dict FormImageMapJSON(const int id_query, std::string&& text) {
-		return { {"request_id"s, id_query}, {"map"s, text} };
+	Dict FormImageMapJSON(const int id_query, string&& text) {
+		return Builder{}.StartDict().
+			Key("request_id"s).Value(id_query).
+			Key("map"s).Value(move(text)).
+			EndDict().Build().AsDict();
 	}
 
 	Dict FormOptimalRoute(const int id_query, string_view stop_from, string_view stop_to, const transpotr_router::TransportRouter& router) {
 		const std::optional<const std::vector<const transpotr_router::RouteConditions*>> route = router.BuildRoute(stop_from, stop_to);
 		if (!route.has_value()) {
-			return { {"request_id"s, id_query}, {"error_message"s, "not found"s} };
+			return Builder{}.StartDict().
+				Key("request_id"s).Value(id_query).
+				Key("error_message"s).Value("not found"s).
+				EndDict().Build().AsDict();
 		}
 		double total_time = 0.0;
 		Array items;
 		items.reserve(route.value().size());
 
 		for (const auto it : route.value()) {
-			Dict dict = { {"type"s, "Wait"s},
-							{ "stop_name"s, it->from->name },
-							{"time"s, it->trip.waiting_time_minutes } };
-			items.push_back(dict);
+			Dict dict = Builder{}.StartDict().
+				Key("type"s).Value("Wait"s).
+				Key("stop_name"s).Value(it->from->name).
+				Key("time"s).Value(it->trip.waiting_time_minutes).
+				EndDict().Build().AsDict();
+			items.push_back(move(dict));
 			total_time += it->trip.waiting_time_minutes;
 
-			dict = { {"type"s, "Bus"s},
-						{"bus"s, it->bus->name},
-						{"span_count"s, it->trip.stops_number},
-						{"time"s, it->trip.travel_time_minutes} };
-
-			items.push_back(dict);
+			dict = Builder{}.StartDict().
+				Key("type"s).Value("Bus"s).
+				Key("bus"s).Value(it->bus->name).
+				Key("span_count"s).Value(it->trip.stops_number).
+				Key("time"s).Value(it->trip.travel_time_minutes).
+				EndDict().Build().AsDict();
+			items.push_back(move(dict));
 			total_time += it->trip.travel_time_minutes;
 		}
-		return { {"request_id"s, id_query}, {"total_time"s, total_time}, {"items"s, items}};
+		return Builder{}.StartDict().
+			Key("request_id"s).Value(id_query).
+			Key("total_time"s).Value(total_time).
+			Key("items"s).Value(items).
+			EndDict().Build().AsDict();
 	}
 
 } //namespace get_inform
@@ -132,7 +155,7 @@ namespace input {
 		, transpotr_router_(transpotr_router) {
 	}
 
-	void JsonReader::AddStop(Dict&& stop, DictDistancesBetweenStops& distances_between_stops) {
+	void JsonReader::AddStop(const Dict& stop, DictDistancesBetweenStops& distances_between_stops) {
 		static size_t id = 0;
 		string name_this_stop = stop.at("name"s).AsString();
 		const json::Dict& near_stops = stop.at("road_distances"s).AsDict();
@@ -150,7 +173,7 @@ namespace input {
 		}
 	}
 
-	void JsonReader::FillBuses(Array&& buses_queries) {
+	void JsonReader::FillBuses(const Array& buses_queries) {
 		for (const Node& node : buses_queries) {
 			json::Dict inform_bus = node.AsDict();
 			string name_this_bus = inform_bus.at("name"s).AsString();
@@ -163,7 +186,7 @@ namespace input {
 		}
 	}
 
-	void JsonReader::FillCatalogue(Array&& queries) {
+	void JsonReader::FillCatalogue(const Array& queries) {
 		json::Array buses_queries;
 		DictDistancesBetweenStops distances_between_stops;
 		for (const Node& query : queries) {
@@ -187,7 +210,7 @@ namespace input {
 		//request_handler.RenderMap().Render(fout);
 	}
 
-	Document JsonReader::FormResponsesToRequests(const MapRenderer& renderer, Array&& print_queries) {
+	Document JsonReader::FormResponsesToRequests(const MapRenderer& renderer, const Array& print_queries) {
 		using namespace get_inform;
 		Builder result_find;
 		result_find.StartArray();

@@ -29,8 +29,8 @@ namespace get_inform {
 
 	namespace detail {
 		json::Array SortNameBus(const std::unordered_set<cBusPtr>& list_buses);
-		svg::Color GetColor(json::Array&& color);
-		renderer::MapVisualizationSettings GetSettings(json::Dict&& settings);
+		svg::Color GetColor(const json::Array& color);
+		renderer::MapVisualizationSettings GetSettings(const json::Dict& settings);
 	}
 }
 
@@ -44,17 +44,17 @@ namespace input {
 		void ProcessingQueries(json::Document&& document_JSON, std::ostream& out);
 
 	private:
-		void FillCatalogue(json::Array&& queries);
+		void FillCatalogue(const json::Array& queries);
 		//RoutingSettings ExtractRoutingSettings(json::Dict&& dict_settings);
 
 
-		void AddStop(json::Dict&& stop, DictDistancesBetweenStops& distances_between_stops);
+		void AddStop(const json::Dict& stop, DictDistancesBetweenStops& distances_between_stops);
 		void FillDistanceStops(DictDistancesBetweenStops&& distances_between_stops);
 
-		void FillBuses(json::Array&& buses_queries);
+		void FillBuses(const json::Array& buses_queries);
 
 		void GetImageMap(const renderer::MapRenderer& renderer, std::ostream& out);
-		json::Document FormResponsesToRequests(const renderer::MapRenderer& renderer, json::Array&& print_queries);
+		json::Document FormResponsesToRequests(const renderer::MapRenderer& renderer, const json::Array& print_queries);
 
 	private:
 		transport_catalogue::TransportCatalogue& transport_catalogue_;

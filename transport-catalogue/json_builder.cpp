@@ -47,16 +47,13 @@ namespace json {
 		if (nodes_stack_.empty() && !root_.IsNull()) {
 			throw logic_error("Attempt to call method \"Key\" with a ready object"s);
 		}
-		if (nodes_stack_.back()->IsString()) {
-			throw logic_error("Attempt to call method \"Key\" immediately after another method \"Key\""s);
-		}
 		if (!nodes_stack_.back()->IsDict()) {
 			throw logic_error("Attempt to call method \"Key\" outside of Dict"s);
 		}
 
-		if (nodes_stack_.back()->IsDict()) {
-			AddNode(Node(move(key)));
-		}
+		// выделяем место в Dict для значения с ключом key (сам ключ не кладется на стек)
+		Dict& dict = get<Dict>(nodes_stack_.back()->GetValue());
+		nodes_stack_.push_back(&dict[move(key)]);
 		return *this;
 	}
 
@@ -64,10 +61,6 @@ namespace json {
 		if (nodes_stack_.empty() && !root_.IsNull()) {
 			throw logic_error("Attempt to call method \"Value\" with a ready object"s);
 		}
-		if (!nodes_stack_.empty() && !nodes_stack_.back()->IsString() && !nodes_stack_.back()->IsArray()) {
-			throw logic_error("Method \"Value\" is called outside of Array or Dict"s);
-		}
-
 		AddNode(Node(move(value)));
 		nodes_stack_.pop_back();
 		return *this;
@@ -87,18 +80,12 @@ namespace json {
 		if (nodes_stack_.empty()) {
 			root_ = node;
 			nodes_stack_.push_back(&root_);
-		} else if (nodes_stack_.back()->IsDict()) {
-			nodes_stack_.push_back(&node);
-		} else if (nodes_stack_.back()->IsString()) {
-			string key = nodes_stack_.back()->AsString();
-			nodes_stack_.pop_back();
-			Dict& dict = get<Dict>(nodes_stack_.back()->GetValue());
-			dict[key] = node;
-			nodes_stack_.push_back(&dict[key]);
 		} else if (nodes_stack_.back()->IsArray()) {
 			Array& arr = get<Array>(nodes_stack_.back()->GetValue());
 			arr.push_back(node);
 			nodes_stack_.push_back(&arr.back());
+		} else {
+			*nodes_stack_.back() = node;
 		}
 	}
 

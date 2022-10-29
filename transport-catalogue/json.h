@@ -40,8 +40,8 @@ namespace json {
         double AsDouble() const;
         const std::string& AsString() const;
         bool AsBool() const;
-        Array AsArray() const;
-        Dict AsDict() const;
+        const Array& AsArray() const;
+        const Dict& AsDict() const;
 
         Value& GetValue();
         const Value& GetValue() const;

@@ -1,6 +1,14 @@
 #pragma once
 #include "transport_catalogue.h"
 #include "map_renderer.h"
+#include "domain.h"
+
+#include <vector>
+#include <deque>
+
+namespace detail {
+    std::vector<cBusPtr> SortingBuses(const std::deque<Bus>& all_buses);
+}
 
 class RequestHandler {
 public:

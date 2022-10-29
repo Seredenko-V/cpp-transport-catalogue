@@ -1,14 +1,26 @@
 #include "request_handler.h"
 
 using namespace std;
-using namespace svg;
-using namespace renderer;
 
-RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db, const MapRenderer& renderer)
+namespace detail {
+	vector<cBusPtr> SortingBuses(const deque<Bus>& all_buses) {
+		vector<cBusPtr> all_sorted_buses(all_buses.size());
+		for (size_t i = 0; i < all_sorted_buses.size(); ++i) {
+			all_sorted_buses[i] = &all_buses[i];
+		}
+		sort(all_sorted_buses.begin(), all_sorted_buses.end(),
+			[](cBusPtr& lhs, cBusPtr& rhs) {
+				return lhs->name < rhs->name;
+			});
+		return all_sorted_buses;
+	}
+}
+
+RequestHandler::RequestHandler(const transport_catalogue::TransportCatalogue& db, const renderer::MapRenderer& renderer)
 	: db_(db)
 	, renderer_(renderer) {
 }
 
-Document RequestHandler::RenderMap() const {
-	return renderer_.GetImageSVG(db_.GetAllBusesSorted());
+svg::Document RequestHandler::RenderMap() const {
+	return renderer_.GetImageSVG(detail::SortingBuses(db_.GetAllBuses()));
 }

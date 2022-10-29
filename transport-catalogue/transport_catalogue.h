@@ -16,9 +16,6 @@
 
 namespace transport_catalogue {
 
-	//using cStopPtr = const Stop*;
-	//using cBusPtr = const Bus*;
-
 	namespace detail {
 		struct HasherDistanceTable {
 			size_t operator()(const std::pair<cStopPtr, cStopPtr> two_stops) const {
@@ -43,8 +40,8 @@ namespace transport_catalogue {
 		BusInfo GetBusInfo(std::string_view name_bus) const;
 		const StopBuses GetListBusesStop(std::string_view name_stop);
 		std::vector<cBusPtr> GetAllBusesSorted() const;
-		const DistancesBetweenStops& GetDistancesBetweenAllStops() const;
-		const std::unordered_map<std::string_view, Stop*>& GetAllStops() const;
+		const std::deque<Bus>& GetAllBuses() const;
+		const std::deque<Stop>& GetAllStops() const;
 		size_t GetDistanceBetweenTwoStops(cStopPtr from, cStopPtr to) const;
 
 	private:

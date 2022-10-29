@@ -73,30 +73,30 @@ namespace transpotr_router {
 
 		directed_weighted_graph_ptr_ = make_unique<graph::DirectedWeightedGraph<RouteInform>>(transport_catalogue_.GetAllStops().size());
 		
-		const vector<cBusPtr>& all_buses = transport_catalogue_.GetAllBusesSorted(); // тут исправить, сделать метод без сортировки
+		const deque<Bus>& all_buses = transport_catalogue_.GetAllBuses(); // тут исправить, сделать метод без сортировки
 		
-		for (const cBusPtr& bus : all_buses) {
-			const vector<cStopPtr>& stops_this_bus = bus->stops;
+		for (const Bus& bus : all_buses) {
+			const vector<cStopPtr>& stops_this_bus = bus.stops;
 			if (stops_this_bus.empty()) {
 				throw out_of_range("Error calculate distance between stops bus. List stops this bus is empty"s);
 			}
 
-			DistanceCalculator distance_calculator(transport_catalogue_, bus);
+			DistanceCalculator distance_calculator(transport_catalogue_, &bus);
 			
 			for (size_t i = 0; i < stops_this_bus.size() - 1; ++i) {
 				for (size_t j = i + 1; j < stops_this_bus.size(); ++j) {
 
 					double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(i, j), routing_settings_.bus_velocity_km_h);
 					RouteInform route_inform{ static_cast<int>(j - i), routing_settings_.bus_wait_time_minutes, time_travel_minutes };
-					RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], bus, route_inform };
+					RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], &bus, route_inform };
 
 					directed_weighted_graph_ptr_->AddEdge({ route_conditions.from->id, route_conditions.to->id, route_inform });
 					optimal_route_.emplace_back(move(route_conditions));
 
-					if (!bus->is_ring) {
+					if (!bus.is_ring) {
 						double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(j, i), routing_settings_.bus_velocity_km_h);
 						RouteInform route_inform{ static_cast<int>(j - i), routing_settings_.bus_wait_time_minutes, time_travel_minutes };
-						RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], bus, route_inform };
+						RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], &bus, route_inform };
 
 						directed_weighted_graph_ptr_->AddEdge({ route_conditions.to->id, route_conditions.from->id, route_inform });
 						optimal_route_.emplace_back(move(route_conditions));

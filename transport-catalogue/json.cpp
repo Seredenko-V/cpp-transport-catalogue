@@ -411,13 +411,13 @@ namespace json {
         }
         return get<bool>(*this);
     }
-    Array Node::AsArray() const {
+    const Array& Node::AsArray() const {
         if (!this->IsArray()) {
             throw std::logic_error("Not an array"s);
         }
         return get<Array>(*this);
     }
-    Dict Node::AsDict() const {
+    const Dict& Node::AsDict() const {
         if (!this->IsDict()) {
             throw std::logic_error("Not a dict"s);
         }

@@ -117,11 +117,11 @@ namespace transport_catalogue {
 		return all_sorted_buses;
 	}
 
-	const DistancesBetweenStops& TransportCatalogue::GetDistancesBetweenAllStops() const {
-		return distance_between_stops_;
+	const std::deque<Stop>& TransportCatalogue::GetAllStops() const {
+		return stops_;
 	}
 
-	const std::unordered_map<std::string_view, Stop*>& TransportCatalogue::GetAllStops() const {
-		return stopname_to_stop_;
+	const deque<Bus>& TransportCatalogue::GetAllBuses() const {
+		return buses_;
 	}
 }
