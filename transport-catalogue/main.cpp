@@ -1,22 +1,26 @@
 ﻿#include "transport_catalogue.h"
 #include "json_reader.h"
 #include "transport_router.h"
+#include "map_renderer.h"
+#include "request_handler.h"
 
 #include <iostream>
 #include <stdexcept>
-#include <fstream>
 
 using namespace std;
-using namespace input;
 
 int main() {
     try {
         transport_catalogue::TransportCatalogue t_catalogue;
-        transpotr_router::TransportRouter t_router(t_catalogue);
+        read::JsonReader reader(cin, t_catalogue);
+        reader.FillCatalogue();
+        renderer::MapRenderer map_renderer(move(reader.ExtractRenderSettings()));
+        transport_router::TransportRouter t_router(t_catalogue, move(reader.ExtractRoutingSettings()));
+        handler::RequestHandler request_handler(t_catalogue, map_renderer, t_router);
 
-        input::JsonReader reader(t_catalogue, t_router);
-        reader.ProcessingQueries(LoadJSON(cin), cout);
-    } catch (const exception& except) {
+        json::Print(request_handler.FormResponsesToRequests(reader.ExtractRequests()), cout);
+    }
+    catch (const exception& except) {
         cout << except.what() << endl;
     }
     return 0;

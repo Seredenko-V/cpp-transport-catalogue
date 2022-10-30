@@ -2,9 +2,9 @@
 
 #include <iostream>
 
-using namespace std;
-
-namespace transpotr_router {
+namespace transport_router {
+	using namespace std;
+	using namespace domain;
 
 	namespace detail {
 		double CalculateTimeTravelBetweenStopsInMinutes(size_t distance_m, int speed_km_h) {
@@ -61,6 +61,16 @@ namespace transpotr_router {
 
 	TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue) 
 		: transport_catalogue_(transport_catalogue) {
+	}
+
+	TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue, RoutingSettings&& routing_settings)
+		: transport_catalogue_(transport_catalogue) 
+		, routing_settings_(routing_settings) {
+		this->CreateGraph();
+		if (directed_weighted_graph_ptr_.get() == nullptr) {
+			throw logic_error("Attempt to create a router with an empty graph"s);
+		}
+		router_ptr_ = std::make_unique<graph::Router<RouteInform>>(*directed_weighted_graph_ptr_);
 	}
 
 	void TransportRouter::SetRoutingSettings(RoutingSettings&& routing_settings) {

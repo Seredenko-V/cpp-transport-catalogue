@@ -1,10 +1,11 @@
 #include "map_renderer.h"
 
-using namespace std;
-using namespace geo;
-using namespace svg;
-
 namespace renderer {
+    using namespace std;
+    using namespace geo;
+    using namespace svg;
+    using namespace domain;
+
     namespace detail {
         vector<Coordinates> GetCoordinatesStopsBus(const vector<cStopPtr>& stops) {
             vector<Coordinates> geo_coords(stops.size());
@@ -172,5 +173,9 @@ namespace renderer {
         DrawLayerStopsNames(image, all_stops, proj);
 
         return image;
+    }
+
+    void MapRenderer::SetSettings(MapVisualizationSettings&& settings) {
+        settings_ = move(settings);
     }
 }

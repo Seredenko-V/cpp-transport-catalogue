@@ -3,6 +3,7 @@
 #include "graph.h"
 #include "router.h"
 #include "transport_catalogue.h"
+#include "domain.h"
 
 #include <unordered_map>
 #include <string>
@@ -10,7 +11,7 @@
 #include <stdexcept>
 #include <deque>
 
-namespace transpotr_router {
+namespace transport_router {
 	using DictDistancesBetweenStops = std::unordered_map<std::string, std::unordered_map<std::string, int>>;
 
 	namespace detail {
@@ -18,11 +19,6 @@ namespace transpotr_router {
 		const uint16_t minutes_per_hour = 60;
 		double CalculateTimeTravelBetweenStopsInMinutes(size_t distance_m, int speed_km_h);
 	} // namespace detail
-
-	struct RoutingSettings {
-		int bus_velocity_km_h = 0; // скорость автобуса, в км/ч
-		int bus_wait_time_minutes = 0; // время ожидания автобуса на остановке, в минутах
-	};
 
 	struct RouteInform {
 		int stops_number = 0;
@@ -54,17 +50,18 @@ namespace transpotr_router {
 	class TransportRouter {
 	public:
 		TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue);
-		void SetRoutingSettings(RoutingSettings&& routing_settings);
-		void Initialization(RoutingSettings&& routing_settings);
+		TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue, domain::RoutingSettings&& routing_settings);
+		void Initialization(domain::RoutingSettings&& routing_settings);
 		const std::optional<const std::vector<const RouteConditions*>> BuildRoute(std::string_view from, std::string_view to) const;
 
 	private:
+		void SetRoutingSettings(domain::RoutingSettings&& routing_settings);
 		void CreateGraph();
 
 	private:
 		transport_catalogue::TransportCatalogue& transport_catalogue_;
 
-		RoutingSettings routing_settings_; // параметры маршрута
+		domain::RoutingSettings routing_settings_; // параметры маршрута
 
 		std::unique_ptr<graph::DirectedWeightedGraph<RouteInform>> directed_weighted_graph_ptr_ = nullptr;
 		std::unique_ptr<graph::Router<RouteInform>> router_ptr_ = nullptr;

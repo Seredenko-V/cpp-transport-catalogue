@@ -16,22 +16,6 @@ namespace renderer {
 
 	bool IsZero(double value);
 
-	// параметры изображения
-	struct MapVisualizationSettings {
-        double width_image = 0.0;
-        double height_image = 0.0;
-		double padding = 0.0; // отступ от краев
-		double line_width = 0.0; // толщина линий автобусных маршрутов
-		double stop_radius = 0.0; // радиус окружностей остановок
-		int bus_label_font_size = 0; // размер текста маршрутов
-		svg::Point bus_label_offset = { 0,0 }; // смещение названия маршрута относительно конечной остановки
-		int stop_label_font_size = 0; // размер текста остановок
-		svg::Point stop_label_offset = { 0,0 }; // смещение названия остановки
-		svg::Color underlayer_color{}; // цвет подложки
-		double underlayer_width = 0.0; // толщина подложки
-		std::vector<svg::Color> color_palette{};
-	};
-
     class SphereProjector;
 
     namespace detail {
@@ -41,18 +25,19 @@ namespace renderer {
     }
 
     namespace labels {
-        void SetGeneralParametersNameBus(svg::Text& text, const MapVisualizationSettings& settings, svg::Point&& point, const std::string& data);
-        svg::Text CreateBackground(const MapVisualizationSettings& settings, const Stop* stop, const std::string& text, const SphereProjector& proj, bool is_bus);
-        svg::Text CreateLabel(const MapVisualizationSettings& settings, const Stop* stop, const std::string& text, const SphereProjector& proj, uint32_t num_color);
-        svg::Text CreateLabel(const MapVisualizationSettings& settings, const Stop* stop, const SphereProjector& proj);
-        void SetGeneralParametersNameStop(svg::Text& text, const MapVisualizationSettings& settings, svg::Point&& point, const std::string& data);
+        void SetGeneralParametersNameBus(svg::Text& text, const domain::MapVisualizationSettings& settings, svg::Point&& point, const std::string& data);
+        svg::Text CreateBackground(const domain::MapVisualizationSettings& settings, const Stop* stop, const std::string& text, const SphereProjector& proj, bool is_bus);
+        svg::Text CreateLabel(const domain::MapVisualizationSettings& settings, const Stop* stop, const std::string& text, const SphereProjector& proj, uint32_t num_color);
+        svg::Text CreateLabel(const domain::MapVisualizationSettings& settings, const Stop* stop, const SphereProjector& proj);
+        void SetGeneralParametersNameStop(svg::Text& text, const domain::MapVisualizationSettings& settings, svg::Point&& point, const std::string& data);
     }
 
 	class MapRenderer {
 	public:
 		MapRenderer() = default;
-		explicit MapRenderer(MapVisualizationSettings&& settings);
+		explicit MapRenderer(domain::MapVisualizationSettings&& settings);
         svg::Document GetImageSVG(std::vector<const Bus*>&& buses) const;
+        void SetSettings(domain::MapVisualizationSettings&& settings);
 
 	private:
         svg::Polyline CreateLineBus(const Bus* bus, const SphereProjector& sphere_projector) const;
@@ -62,7 +47,7 @@ namespace renderer {
         void DrawLayerStopsSymbols(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const;
         void DrawLayerStopsNames(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const;
 
-		MapVisualizationSettings settings_{};
+        domain::MapVisualizationSettings settings_{};
 	};
 
     class SphereProjector {

@@ -2,28 +2,11 @@
 
 using namespace std;
 using namespace json;
-using namespace renderer;
 
-namespace get_inform {
-	using namespace transport_catalogue;
+namespace read {
+
 	namespace detail {
-		Array SortNameBus(const unordered_set<cBusPtr>& list_buses) {
-			Array list_buses_arr;
-			list_buses_arr.reserve(list_buses.size());
-
-			for (const cBusPtr& ptr_bus : list_buses) {
-				list_buses_arr.emplace_back(ptr_bus->name);
-			}
-
-			sort(list_buses_arr.begin(), list_buses_arr.end(),
-				[](const Node& lhs, const Node& rhs) {
-					return lhs.AsString() < rhs.AsString();
-				});
-
-			return list_buses_arr;
-		}
-
-		svg::Color GetColor(const json::Array& color) {
+		const svg::Color GetColor(const json::Array& color) {
 			using namespace svg;
 			if (color.size() == 1) {
 				return color.front().AsString();
@@ -34,8 +17,8 @@ namespace get_inform {
 			}
 		}
 
-		renderer::MapVisualizationSettings GetSettings(const json::Dict& settings) {
-			renderer::MapVisualizationSettings visual_settings;
+		const domain::MapVisualizationSettings GetRenderSettings(const json::Dict& settings) {
+			domain::MapVisualizationSettings visual_settings;
 
 			visual_settings.width_image = settings.at("width"s).AsDouble();
 			visual_settings.height_image = settings.at("height"s).AsDouble();
@@ -67,92 +50,11 @@ namespace get_inform {
 			visual_settings.color_palette = move(color_palette);
 			return visual_settings;
 		}
-	} // namespace detail
-
-	Dict FormInformBus(const int id_query, const BusInfo& stat_bus) {
-		if (stat_bus.is_empty) {
-			return Builder{}.StartDict().
-				Key("request_id"s).Value(id_query).
-				Key("error_message"s).Value("not found"s).
-				EndDict().Build().AsDict();
-		}
-		return Builder{}.StartDict().
-			Key("request_id"s).Value(id_query).
-			Key("stop_count"s).Value(static_cast<int>(stat_bus.number_stops)).
-			Key("unique_stop_count"s).Value(static_cast<int>(stat_bus.number_unique_stops)).
-			Key("route_length"s).Value(static_cast<int>(stat_bus.road_distance)).
-			Key("curvature"s).Value(stat_bus.curvature).
-			EndDict().Build().AsDict();
 	}
 
-	Dict FormListBuses(const int id_query, const StopBuses& stop_buses) {
-		if (stop_buses.is_empty) {
-			return Builder{}.StartDict().
-				Key("request_id"s).Value(id_query).
-				Key("error_message"s).Value("not found"s).
-				EndDict().Build().AsDict();
-		}
-		return Builder{}.StartDict().
-			Key("request_id"s).Value(id_query).
-			Key("buses"s).Value(detail::SortNameBus(stop_buses.buses_stop)).
-			EndDict().Build().AsDict();
-	}
-
-	Dict FormImageMapJSON(const int id_query, string&& text) {
-		return Builder{}.StartDict().
-			Key("request_id"s).Value(id_query).
-			Key("map"s).Value(move(text)).
-			EndDict().Build().AsDict();
-	}
-
-	Dict FormOptimalRoute(const int id_query, string_view stop_from, string_view stop_to, const transpotr_router::TransportRouter& router) {
-		const std::optional<const std::vector<const transpotr_router::RouteConditions*>> route = router.BuildRoute(stop_from, stop_to);
-		if (!route.has_value()) {
-			return Builder{}.StartDict().
-				Key("request_id"s).Value(id_query).
-				Key("error_message"s).Value("not found"s).
-				EndDict().Build().AsDict();
-		}
-		double total_time = 0.0;
-		Array items;
-		items.reserve(route.value().size());
-
-		for (const auto it : route.value()) {
-			Dict dict = Builder{}.StartDict().
-				Key("type"s).Value("Wait"s).
-				Key("stop_name"s).Value(it->from->name).
-				Key("time"s).Value(it->trip.waiting_time_minutes).
-				EndDict().Build().AsDict();
-			items.push_back(move(dict));
-			total_time += it->trip.waiting_time_minutes;
-
-			dict = Builder{}.StartDict().
-				Key("type"s).Value("Bus"s).
-				Key("bus"s).Value(it->bus->name).
-				Key("span_count"s).Value(it->trip.stops_number).
-				Key("time"s).Value(it->trip.travel_time_minutes).
-				EndDict().Build().AsDict();
-			items.push_back(move(dict));
-			total_time += it->trip.travel_time_minutes;
-		}
-		return Builder{}.StartDict().
-			Key("request_id"s).Value(id_query).
-			Key("total_time"s).Value(total_time).
-			Key("items"s).Value(items).
-			EndDict().Build().AsDict();
-	}
-
-} //namespace get_inform
-
-namespace input {
-
-	json::Document LoadJSON(std::istream& input_JSON) {
-		return Load(input_JSON);
-	}
-
-	JsonReader::JsonReader(transport_catalogue::TransportCatalogue& transport_catalogue, transpotr_router::TransportRouter& transpotr_router)
-		: transport_catalogue_(transport_catalogue)
-		, transpotr_router_(transpotr_router) {
+	JsonReader::JsonReader(istream& input_JSON, transport_catalogue::TransportCatalogue& transport_catalogue)
+		: query_(Load(input_JSON).GetRoot().AsDict())
+		, transport_catalogue_(transport_catalogue) {
 	}
 
 	void JsonReader::AddStop(const Dict& stop, DictDistancesBetweenStops& distances_between_stops) {
@@ -173,7 +75,7 @@ namespace input {
 		}
 	}
 
-	void JsonReader::FillBuses(const Array& buses_queries) {
+	void JsonReader::FillBuses(Array&& buses_queries) {
 		for (const Node& node : buses_queries) {
 			json::Dict inform_bus = node.AsDict();
 			string name_this_bus = inform_bus.at("name"s).AsString();
@@ -186,66 +88,37 @@ namespace input {
 		}
 	}
 
-	void JsonReader::FillCatalogue(const Array& queries) {
-		json::Array buses_queries;
+	void JsonReader::FillCatalogue() {
+		assert(query_.count("base_requests"s));
+		const Array& base_requests = query_.at("base_requests"s).AsArray();
+		Array buses_queries;
 		DictDistancesBetweenStops distances_between_stops;
-		for (const Node& query : queries) {
-			// согласно условию, в запросе всегда присутствует ключ "type".
-			// Поэтому не боимся упасть на .at() и отсутствует .count()
+		for (const Node& query : base_requests) {
 			assert(query.AsDict().count("type"s));
 			if (query.AsDict().at("type"s) == "Bus"s) {
-				buses_queries.emplace_back(move(query));
+				buses_queries.emplace_back(query);
 			} else {
-				AddStop(move(query.AsDict()), distances_between_stops);
+				AddStop(query.AsDict(), distances_between_stops);
 			}
 		}
 		FillDistanceStops(move(distances_between_stops));
 		FillBuses(move(buses_queries));
 	}
 
-	void JsonReader::GetImageMap(const MapRenderer& renderer, ostream& out) {
-		RequestHandler request_handler(transport_catalogue_, renderer);
-		request_handler.RenderMap().Render(out);
-		//ofstream fout("OutSVG.svg");
-		//request_handler.RenderMap().Render(fout);
+	domain::RoutingSettings JsonReader::ExtractRoutingSettings() const {
+		assert(query_.count("routing_settings"s));
+		const Dict& routing_settings = query_.at("routing_settings"s).AsDict();
+		return { routing_settings.at("bus_velocity"s).AsInt(), routing_settings.at("bus_wait_time"s).AsInt() };
 	}
 
-	Document JsonReader::FormResponsesToRequests(const MapRenderer& renderer, const Array& print_queries) {
-		using namespace get_inform;
-		Builder result_find;
-		result_find.StartArray();
-
-		for (const Node& query : print_queries) {
-			Dict text_query = query.AsDict();
-			if (text_query.at("type"s) == "Bus"s) {
-				result_find.Value(FormInformBus(text_query.at("id"s).AsInt(), transport_catalogue_.GetBusInfo(text_query.at("name"s).AsString())));
-			} else if (text_query.at("type"s) == "Stop"s) {
-				result_find.Value(FormListBuses(text_query.at("id"s).AsInt(), transport_catalogue_.GetListBusesStop(text_query.at("name"s).AsString())));
-			} else if (text_query.at("type"s) == "Route"s) {
-				result_find.Value(FormOptimalRoute(text_query.at("id"s).AsInt(), text_query.at("from"s).AsString(), text_query.at("to"s).AsString(), transpotr_router_));
-			} else {
-				ostringstream image;
-				GetImageMap(renderer, image);
-				result_find.Value(FormImageMapJSON(text_query.at("id"s).AsInt(), image.str()));
-			}
-		}
-		result_find.EndArray();
-		return Document(result_find.Build());
+	domain::MapVisualizationSettings JsonReader::ExtractRenderSettings() const {
+		assert(query_.count("render_settings"s));
+		const Dict& render_settings = query_.at("render_settings"s).AsDict();
+		return detail::GetRenderSettings(move(render_settings));
 	}
 
-	void JsonReader::ProcessingQueries(Document&& document_JSON, ostream& out) {
-		Array data_catalogue = document_JSON.GetRoot().AsDict().at("base_requests"s).AsArray();
-		FillCatalogue(move(data_catalogue));
-
-		// новый запрос
-		Dict routing_settings = document_JSON.GetRoot().AsDict().at("routing_settings"s).AsDict();
-		transpotr_router_.Initialization({ routing_settings.at("bus_velocity"s).AsInt(), routing_settings.at("bus_wait_time"s).AsInt() });
-
-		Dict render_settings = document_JSON.GetRoot().AsDict().at("render_settings"s).AsDict();
-		MapRenderer renderer(get_inform::detail::GetSettings(move(render_settings)));
-
-		Array requests = document_JSON.GetRoot().AsDict().at("stat_requests"s).AsArray();
-		Document responses_to_queries = FormResponsesToRequests(renderer, move(requests));
-		Print(responses_to_queries, out);
+	const Array& JsonReader::ExtractRequests() const {
+		assert(query_.count("stat_requests"s));
+		return query_.at("stat_requests"s).AsArray();
 	}
 }
