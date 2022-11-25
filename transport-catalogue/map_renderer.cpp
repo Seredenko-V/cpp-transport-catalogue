@@ -15,7 +15,7 @@ namespace renderer {
             return geo_coords;
         }
 
-        // Получение координат остановок всех маршрутов для проекции на карту
+        // РџРѕР»СѓС‡РµРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РѕСЃС‚Р°РЅРѕРІРѕРє РІСЃРµС… РјР°СЂС€СЂСѓС‚РѕРІ РґР»СЏ РїСЂРѕРµРєС†РёРё РЅР° РєР°СЂС‚Сѓ
         vector<Coordinates> GetCoordinatesStopsAllBuses(const vector<const Bus*>& buses) {
             vector<Coordinates> geo_coords_all_stops;
             for (const Bus* bus : buses) {
@@ -23,21 +23,22 @@ namespace renderer {
                     continue;
                 }
                 vector<Coordinates> geo_coords_one_bus = GetCoordinatesStopsBus(bus->stops);
-                geo_coords_all_stops.insert(geo_coords_all_stops.end(), geo_coords_one_bus.begin(), geo_coords_one_bus.end());
+                geo_coords_all_stops.insert(geo_coords_all_stops.end(), geo_coords_one_bus.begin(),
+                                            geo_coords_one_bus.end());
             }
             return geo_coords_all_stops;
         }
 
-        // для рисования остановок в нужном порядке
+        // РґР»СЏ СЂРёСЃРѕРІР°РЅРёСЏ РѕСЃС‚Р°РЅРѕРІРѕРє РІ РЅСѓР¶РЅРѕРј РїРѕСЂСЏРґРєРµ
         vector<const Stop*> GetAllStopsSorted(const vector<const Bus*>& buses) {
             unordered_set<const Stop*> all_stops;
-            all_stops.reserve(buses.size() * 2); // т.к. у каждого маршрута не меньше 2-х остановок
+            all_stops.reserve(buses.size() * 2); // С‚.Рє. Сѓ РєР°Р¶РґРѕРіРѕ РјР°СЂС€СЂСѓС‚Р° РЅРµ РјРµРЅСЊС€Рµ 2-С… РѕСЃС‚Р°РЅРѕРІРѕРє
             for (const Bus* bus : buses) {
                 all_stops.insert(bus->stops.begin(), bus->stops.end());
             }
-            // используется un_set и vector, вместо set, т.к. сложность добавления у un_set ниже, 
-            // а в векторе сортируем ОДИН раз, вместо того чтобы это делать каждый раз при добавлении в set
-            // Также, если изменится порядок сортировки остановок, будет намного проще изменить
+            // РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ un_set Рё vector, РІРјРµСЃС‚Рѕ set, С‚.Рє. СЃР»РѕР¶РЅРѕСЃС‚СЊ РґРѕР±Р°РІР»РµРЅРёСЏ Сѓ un_set РЅРёР¶Рµ,
+            // Р° РІ РІРµРєС‚РѕСЂРµ СЃРѕСЂС‚РёСЂСѓРµРј РћР”РРќ СЂР°Р·, РІРјРµСЃС‚Рѕ С‚РѕРіРѕ С‡С‚РѕР±С‹ СЌС‚Рѕ РґРµР»Р°С‚СЊ РєР°Р¶РґС‹Р№ СЂР°Р· РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё РІ set
+            // РўР°РєР¶Рµ, РµСЃР»Рё РёР·РјРµРЅРёС‚СЃСЏ РїРѕСЂСЏРґРѕРє СЃРѕСЂС‚РёСЂРѕРІРєРё РѕСЃС‚Р°РЅРѕРІРѕРє, Р±СѓРґРµС‚ РЅР°РјРЅРѕРіРѕ РїСЂРѕС‰Рµ РёР·РјРµРЅРёС‚СЊ
             vector<const Stop*> all_stops_sorted(all_stops.size());
             move(all_stops.begin(), all_stops.end(), all_stops_sorted.begin());
             sort(all_stops_sorted.begin(), all_stops_sorted.end(), [](const Stop* lhs, const Stop* rhs) {
@@ -48,20 +49,23 @@ namespace renderer {
     } //namespace detail
 
     namespace labels {
-        void SetGeneralParametersNameBus(Text& text, const MapVisualizationSettings& settings, Point&& point, const string& data) {
+        void SetGeneralParametersNameBus(Text& text, const MapVisualizationSettings& settings, Point&& point,
+                                         const string& data) {
             text.SetPosition(point).SetData(data);
             text.SetFontSize(settings.bus_label_font_size).SetOffset(settings.bus_label_offset);
             text.SetFontFamily("Verdana"s).SetFontWeight("bold"s);
         }
 
-        void SetGeneralParametersNameStop(Text& text, const MapVisualizationSettings& settings, Point&& point, const string& data) {
+        void SetGeneralParametersNameStop(Text& text, const MapVisualizationSettings& settings, Point&& point,
+                                          const string& data) {
             text.SetPosition(point).SetData(data);
             text.SetFontSize(settings.stop_label_font_size).SetOffset(settings.stop_label_offset);
             text.SetFontFamily("Verdana"s);
         }
 
-        Text CreateBackground(const MapVisualizationSettings& settings, const Stop* stop, const string& text, const SphereProjector& proj, bool is_bus) {
-            Text background; // подложка
+        Text CreateBackground(const MapVisualizationSettings& settings, const Stop* stop, const string& text,
+                              const SphereProjector& proj, bool is_bus) {
+            Text background; // РїРѕРґР»РѕР¶РєР°
             if (is_bus) {
                 labels::SetGeneralParametersNameBus(background, settings, proj(stop->coordinates), text);
             } else {
@@ -73,7 +77,8 @@ namespace renderer {
             return background;
         }
 
-        Text CreateLabel(const MapVisualizationSettings& settings, const Stop* stop, const string& text, const SphereProjector& proj, uint32_t num_color) {
+        Text CreateLabel(const MapVisualizationSettings& settings, const Stop* stop, const string& text,
+                         const SphereProjector& proj, uint32_t num_color) {
             Text label;
             labels::SetGeneralParametersNameBus(label, settings, proj(stop->coordinates), text);
             label.SetFillColor(settings.color_palette[num_color]);
@@ -153,7 +158,8 @@ namespace renderer {
         }
     }
 
-    void MapRenderer::DrawLayerStopsNames(svg::Document& image, const std::vector<const Stop*> stops, const SphereProjector& proj) const {
+    void MapRenderer::DrawLayerStopsNames(svg::Document& image, const std::vector<const Stop*> stops,
+                                          const SphereProjector& proj) const {
         for (const Stop* stop : stops) {
             Text background = labels::CreateBackground(settings_, stop, stop->name, proj, false);
             Text name = labels::CreateLabel(settings_, stop, proj);
@@ -165,7 +171,8 @@ namespace renderer {
     Document MapRenderer::GetImageSVG(vector<const Bus*>&& buses) const {
         Document image;
         vector<Coordinates> geo_coords_stops_all_buses = detail::GetCoordinatesStopsAllBuses(buses);
-        const SphereProjector proj(geo_coords_stops_all_buses.begin(), geo_coords_stops_all_buses.end(), settings_.width_image, settings_.height_image, settings_.padding);
+        const SphereProjector proj(geo_coords_stops_all_buses.begin(), geo_coords_stops_all_buses.end(),
+                                   settings_.width_image, settings_.height_image, settings_.padding);
         DrawLayerLinesBuses(image, buses, proj);
         DrawLayerNamesBuses(image, buses, proj);
         vector<const Stop*> all_stops = detail::GetAllStopsSorted(buses);
@@ -177,5 +184,9 @@ namespace renderer {
 
     void MapRenderer::SetSettings(MapVisualizationSettings&& settings) {
         settings_ = move(settings);
+    }
+
+    const MapVisualizationSettings& MapRenderer::GetSettings() const {
+        return settings_;
     }
 }

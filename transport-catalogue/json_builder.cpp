@@ -51,7 +51,6 @@ namespace json {
 			throw logic_error("Attempt to call method \"Key\" outside of Dict"s);
 		}
 
-		// выделяем место в Dict для значения с ключом key (сам ключ не кладется на стек)
 		Dict& dict = get<Dict>(nodes_stack_.back()->GetValue());
 		nodes_stack_.push_back(&dict[move(key)]);
 		return *this;

@@ -20,7 +20,8 @@ namespace handler {
 		json::Dict FormInformBus(const int id_query, const BusInfo& stat_bus);
 		json::Dict FormListBuses(const int id_query, const StopBuses& stop_buses);
 		json::Dict FormImageMapJSON(const int id_query, std::string&& text);
-		json::Dict FormOptimalRoute(const int id_query, std::string_view stop_from, std::string_view stop_to, const transport_router::TransportRouter& router);
+		json::Dict FormOptimalRoute(const int id_query, std::string_view stop_from, std::string_view stop_to,
+                                    const transport_router::TransportRouter& router);
 	} // namespace get_inform
 
 	namespace detail {
@@ -34,14 +35,11 @@ namespace handler {
 			renderer::MapRenderer& map_renderer, transport_router::TransportRouter& transpotr_router);
 		svg::Document RenderMap() const;
 
-
-
-		//void GetImageMap(std::ostream& out);
-		json::Document FormResponsesToRequests(const json::Array& print_queries) const;
+        json::Document FormResponsesToRequests(const json::Array& print_queries) const;
 
 	private:
-		// RequestHandler использует агрегацию объектов "Транспортный Справочник", "Визуализатор Карты"
-		// и "Маршрутизатор"
+        // RequestHandler РёСЃРїРѕР»СЊР·СѓРµС‚ Р°РіСЂРµРіР°С†РёСЋ РѕР±СЉРµРєС‚РѕРІ "РўСЂР°РЅСЃРїРѕСЂС‚РЅС‹Р№ РЎРїСЂР°РІРѕС‡РЅРёРє", "Р’РёР·СѓР°Р»РёР·Р°С‚РѕСЂ РљР°СЂС‚С‹"
+        // Рё "РњР°СЂС€СЂСѓС‚РёР·Р°С‚РѕСЂ"
 		transport_catalogue::TransportCatalogue& transport_catalogue_;
 		renderer::MapRenderer& map_renderer_;
 		transport_router::TransportRouter& transpotr_router_;

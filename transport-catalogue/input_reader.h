@@ -41,7 +41,7 @@ namespace input {
 		std::vector<std::string> SplitIntoInformBlocks(std::string&& text, const char symbol);
 		detail::DistanceToStop GetDistanceToStop(std::string&& text);
 
-		// разделение названий остановок маршрута
+        // СЂР°Р·РґРµР»РµРЅРёРµ РЅР°Р·РІР°РЅРёР№ РѕСЃС‚Р°РЅРѕРІРѕРє РјР°СЂС€СЂСѓС‚Р°
 		std::vector<std::string> SplitIntoStops(std::string&& text, const char separator_symbol);
 	}
 

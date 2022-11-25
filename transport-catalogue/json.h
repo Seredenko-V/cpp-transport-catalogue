@@ -11,8 +11,6 @@ namespace json {
     class Node;
     using Dict = std::map<std::string, Node>;
     using Array = std::vector<Node>;
-    //using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-
 
     class ParsingError : public std::runtime_error {
     public:
@@ -21,7 +19,7 @@ namespace json {
 
     class Node final : private std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string> {
     public:
-        // Делаем доступными все конструкторы родительского класса variant
+        // Р”РµР»Р°РµРј РґРѕСЃС‚СѓРїРЅС‹РјРё РІСЃРµ РєРѕРЅСЃС‚СЂСѓРєС‚РѕСЂС‹ СЂРѕРґРёС‚РµР»СЊСЃРєРѕРіРѕ РєР»Р°СЃСЃР° variant
         using variant::variant;
         using Value = variant;
 

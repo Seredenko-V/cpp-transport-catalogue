@@ -8,6 +8,7 @@
 #include <vector>
 #include <unordered_set>
 #include <deque>
+#include <filesystem>
 
 struct Stop {
 	std::string name;
@@ -63,4 +64,9 @@ namespace domain {
 		double underlayer_width = 0.0; // толщина подложки
 		std::vector<svg::Color> color_palette{};
 	};
+
+    // параметры сериализации
+    struct SerializatorSettings {
+        std::filesystem::path path_to_out_file;
+    };
 }

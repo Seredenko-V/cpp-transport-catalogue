@@ -29,7 +29,8 @@ namespace transport_router {
 	}
 
 
-	DistanceCalculator::DistanceCalculator(const transport_catalogue::TransportCatalogue& transport_catalogue, cBusPtr bus_route) 
+	DistanceCalculator::DistanceCalculator(const transport_catalogue::TransportCatalogue& transport_catalogue,
+                                           cBusPtr bus_route)
 		: forward_distance_(bus_route->stops.size())
 		, reverse_distance_(bus_route->stops.size()) {
 
@@ -63,7 +64,8 @@ namespace transport_router {
 		: transport_catalogue_(transport_catalogue) {
 	}
 
-	TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue, RoutingSettings&& routing_settings)
+	TransportRouter::TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue,
+                                     RoutingSettings&& routing_settings)
 		: transport_catalogue_(transport_catalogue) 
 		, routing_settings_(routing_settings) {
 		this->CreateGraph();
@@ -83,7 +85,7 @@ namespace transport_router {
 
 		directed_weighted_graph_ptr_ = make_unique<graph::DirectedWeightedGraph<RouteInform>>(transport_catalogue_.GetAllStops().size());
 		
-		const deque<Bus>& all_buses = transport_catalogue_.GetAllBuses(); // тут исправить, сделать метод без сортировки
+		const deque<Bus>& all_buses = transport_catalogue_.GetAllBuses();
 		
 		for (const Bus& bus : all_buses) {
 			const vector<cStopPtr>& stops_this_bus = bus.stops;
@@ -96,15 +98,18 @@ namespace transport_router {
 			for (size_t i = 0; i < stops_this_bus.size() - 1; ++i) {
 				for (size_t j = i + 1; j < stops_this_bus.size(); ++j) {
 
-					double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(i, j), routing_settings_.bus_velocity_km_h);
-					RouteInform route_inform{ static_cast<int>(j - i), routing_settings_.bus_wait_time_minutes, time_travel_minutes };
+					double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(i, j),
+                                                                                                  routing_settings_.bus_velocity_km_h);
+					RouteInform route_inform{ static_cast<int>(j - i), routing_settings_.bus_wait_time_minutes,
+                                              time_travel_minutes };
 					RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], &bus, route_inform };
 
 					directed_weighted_graph_ptr_->AddEdge({ route_conditions.from->id, route_conditions.to->id, route_inform });
 					optimal_route_.emplace_back(move(route_conditions));
 
 					if (!bus.is_ring) {
-						double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(j, i), routing_settings_.bus_velocity_km_h);
+						double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(j, i),
+                                                                                                      routing_settings_.bus_velocity_km_h);
 						RouteInform route_inform{ static_cast<int>(j - i), routing_settings_.bus_wait_time_minutes, time_travel_minutes };
 						RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], &bus, route_inform };
 
@@ -124,6 +129,10 @@ namespace transport_router {
 		}
 		router_ptr_ = std::make_unique<graph::Router<RouteInform>>(*directed_weighted_graph_ptr_);
 	}
+
+    const domain::RoutingSettings& TransportRouter::GetSettings() const {
+        return routing_settings_;
+    }
 
 	const optional<const vector<const RouteConditions*>> TransportRouter::BuildRoute(string_view from, string_view to) const {
 		if (transport_catalogue_.GetAllStops().empty()) {

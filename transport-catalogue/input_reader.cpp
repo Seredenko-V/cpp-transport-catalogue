@@ -33,7 +33,8 @@ namespace input {
 			vector<string> inform_blocks;
 			size_t begin_block = 0;
 			while (begin_block != text.npos) {
-				size_t position_delimiter = text.find_first_of(symbol_delimiter, begin_block); // позиция символа-разделителя
+                // РїРѕР·РёС†РёСЏ СЃРёРјРІРѕР»Р°-СЂР°Р·РґРµР»РёС‚РµР»СЏ
+				size_t position_delimiter = text.find_first_of(symbol_delimiter, begin_block);
 				inform_blocks.emplace_back(text.substr(begin_block, position_delimiter - begin_block));
 				begin_block = position_delimiter != text.npos ? position_delimiter + 2 : text.npos;
 			}
@@ -74,7 +75,9 @@ namespace input {
 			}
 			for (size_t i = 2; i < inform_blocks.size(); ++i) {
 				detail::DistanceToStop distance_to_other_stop = GetDistanceToStop(move(inform_blocks[i]));
-				transport_catalogue_.SetDistanceBetweenStops(transport_catalogue_.FindStop(move(stop)), transport_catalogue_.FindStop(move(distance_to_other_stop.name_neighboring_stop)), distance_to_other_stop.distance);
+				transport_catalogue_.SetDistanceBetweenStops(transport_catalogue_.FindStop(move(stop)),
+                                    transport_catalogue_.FindStop(move(distance_to_other_stop.name_neighboring_stop)),
+                                    distance_to_other_stop.distance);
 			}
 		}
 	}
@@ -85,7 +88,8 @@ namespace input {
 			bool bus_is_ring = text.find_first_of('-') != text.npos ? false : true;
 			char separator_symbol = bus_is_ring ? '>' : '-';
 
-			vector<string> names_stops = parse::SplitIntoStops(move(text.substr(text.find_first_of(':') + 2)), separator_symbol);
+			vector<string> names_stops = parse::SplitIntoStops(move(text.substr(text.find_first_of(':') + 2)),
+                                                               separator_symbol);
 			transport_catalogue_.AddBus(move(name), move(names_stops), bus_is_ring);
 		}
 	}
@@ -94,7 +98,7 @@ namespace input {
 		using namespace parse;
 		unordered_map<string, vector<string>> inform_blocks_stops;
 		inform_blocks_stops.reserve(queries.size() / 2);
-		vector<string> text_buses; // для обработки маршрутов ПОСЛЕ обработки остановок
+		vector<string> text_buses; // РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё РјР°СЂС€СЂСѓС‚РѕРІ РџРћРЎР›Р• РѕР±СЂР°Р±РѕС‚РєРё РѕСЃС‚Р°РЅРѕРІРѕРє
 
 		for (string& text_query : queries) {
 			size_t position_space = text_query.find_first_of(' ');
@@ -105,7 +109,7 @@ namespace input {
 				inform_blocks_stops[name_stop] = (SplitIntoInformBlocks(move(text_query.substr(position_colon + 1)), ','));
 				transport_catalogue_.AddStop(move(name_stop), atof(inform_blocks_stops.at(name_stop)[0].c_str()), atof(inform_blocks_stops.at(name_stop)[1].c_str()), id++);
 			} else {
-				// добавление перечня остановок в вектор строк без ключевого слова "Bus"
+                // РґРѕР±Р°РІР»РµРЅРёРµ РїРµСЂРµС‡РЅСЏ РѕСЃС‚Р°РЅРѕРІРѕРє РІ РІРµРєС‚РѕСЂ СЃС‚СЂРѕРє Р±РµР· РєР»СЋС‡РµРІРѕРіРѕ СЃР»РѕРІР° "Bus"
 				text_buses.emplace_back(move(text_query.substr(position_space + 1)));
 			}
 		}

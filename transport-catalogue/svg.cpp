@@ -9,7 +9,8 @@ namespace svg {
         return out;
     }
     std::ostream& operator<<(std::ostream& out, const Rgba& rgba) {
-        out << "rgba("sv << (unsigned)rgba.red << ","sv << (unsigned)rgba.green << ","sv << (unsigned)rgba.blue << ","sv << rgba.opacity << ")"sv;
+        out << "rgba("sv << (unsigned)rgba.red << ","sv << (unsigned)rgba.green << ","sv << (unsigned)rgba.blue
+        << ","sv << rgba.opacity << ")"sv;
         return out;
     }
     std::ostream& operator<<(std::ostream& out, const Color& color) {

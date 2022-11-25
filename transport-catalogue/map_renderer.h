@@ -25,11 +25,16 @@ namespace renderer {
     }
 
     namespace labels {
-        void SetGeneralParametersNameBus(svg::Text& text, const domain::MapVisualizationSettings& settings, svg::Point&& point, const std::string& data);
-        svg::Text CreateBackground(const domain::MapVisualizationSettings& settings, const Stop* stop, const std::string& text, const SphereProjector& proj, bool is_bus);
-        svg::Text CreateLabel(const domain::MapVisualizationSettings& settings, const Stop* stop, const std::string& text, const SphereProjector& proj, uint32_t num_color);
-        svg::Text CreateLabel(const domain::MapVisualizationSettings& settings, const Stop* stop, const SphereProjector& proj);
-        void SetGeneralParametersNameStop(svg::Text& text, const domain::MapVisualizationSettings& settings, svg::Point&& point, const std::string& data);
+        void SetGeneralParametersNameBus(svg::Text& text, const domain::MapVisualizationSettings& settings,
+                                         svg::Point&& point, const std::string& data);
+        svg::Text CreateBackground(const domain::MapVisualizationSettings& settings, const Stop* stop,
+                                   const std::string& text, const SphereProjector& proj, bool is_bus);
+        svg::Text CreateLabel(const domain::MapVisualizationSettings& settings, const Stop* stop,
+                              const std::string& text, const SphereProjector& proj, uint32_t num_color);
+        svg::Text CreateLabel(const domain::MapVisualizationSettings& settings, const Stop* stop,
+                              const SphereProjector& proj);
+        void SetGeneralParametersNameStop(svg::Text& text, const domain::MapVisualizationSettings& settings,
+                                          svg::Point&& point, const std::string& data);
     }
 
 	class MapRenderer {
@@ -38,6 +43,7 @@ namespace renderer {
 		explicit MapRenderer(domain::MapVisualizationSettings&& settings);
         svg::Document GetImageSVG(std::vector<const Bus*>&& buses) const;
         void SetSettings(domain::MapVisualizationSettings&& settings);
+        const domain::MapVisualizationSettings& GetSettings() const;
 
 	private:
         svg::Polyline CreateLineBus(const Bus* bus, const SphereProjector& sphere_projector) const;

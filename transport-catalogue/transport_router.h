@@ -22,8 +22,8 @@ namespace transport_router {
 
 	struct RouteInform {
 		int stops_number = 0;
-		int waiting_time_minutes = 0; // время ожидания в минутах
-		double travel_time_minutes = 0; // время движения в минутах
+		int waiting_time_minutes = 0; // РІСЂРµРјСЏ РѕР¶РёРґР°РЅРёСЏ РІ РјРёРЅСѓС‚Р°С…
+		double travel_time_minutes = 0; // РІСЂРµРјСЏ РґРІРёР¶РµРЅРёСЏ РІ РјРёРЅСѓС‚Р°С…
 	};
 
 	RouteInform operator+(const RouteInform& lhs, const RouteInform& rhs);
@@ -50,9 +50,12 @@ namespace transport_router {
 	class TransportRouter {
 	public:
 		TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue);
-		TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue, domain::RoutingSettings&& routing_settings);
+		TransportRouter(transport_catalogue::TransportCatalogue& transport_catalogue,
+                        domain::RoutingSettings&& routing_settings);
 		void Initialization(domain::RoutingSettings&& routing_settings);
-		const std::optional<const std::vector<const RouteConditions*>> BuildRoute(std::string_view from, std::string_view to) const;
+        const domain::RoutingSettings& GetSettings() const;
+		const std::optional<const std::vector<const RouteConditions*>> BuildRoute(std::string_view from,
+                                                                                  std::string_view to) const;
 
 	private:
 		void SetRoutingSettings(domain::RoutingSettings&& routing_settings);
@@ -61,7 +64,7 @@ namespace transport_router {
 	private:
 		transport_catalogue::TransportCatalogue& transport_catalogue_;
 
-		domain::RoutingSettings routing_settings_; // параметры маршрута
+		domain::RoutingSettings routing_settings_; // РїР°СЂР°РјРµС‚СЂС‹ РјР°СЂС€СЂСѓС‚Р°
 
 		std::unique_ptr<graph::DirectedWeightedGraph<RouteInform>> directed_weighted_graph_ptr_ = nullptr;
 		std::unique_ptr<graph::Router<RouteInform>> router_ptr_ = nullptr;

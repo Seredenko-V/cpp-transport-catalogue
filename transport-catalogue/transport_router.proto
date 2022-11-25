@@ -1,0 +1,8 @@
+syntax = "proto3";
+
+package transport_router_proto;
+
+message RouterSettings {
+    int32 bus_velocity_km_h = 1;
+    int32 bus_wait_time_minutes = 2;
+};

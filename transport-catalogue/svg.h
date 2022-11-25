@@ -59,7 +59,6 @@ namespace svg {
 
     std::ostream& operator<<(std::ostream& out, const Color& color);
 
-    //using Color = std::string;
     // Объявив в заголовочном файле константу со спецификатором inline,
     // мы сделаем так, что она будет одной на все единицы трансляции,
     // которые подключают этот заголовок.

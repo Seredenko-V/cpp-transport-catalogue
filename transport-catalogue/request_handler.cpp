@@ -74,7 +74,8 @@ namespace handler {
 				EndDict().Build().AsDict();
 		}
 
-		Dict FormOptimalRoute(const int id_query, string_view stop_from, string_view stop_to, const transport_router::TransportRouter& router) {
+		Dict FormOptimalRoute(const int id_query, string_view stop_from, string_view stop_to,
+                              const transport_router::TransportRouter& router) {
 			const std::optional<const std::vector<const transport_router::RouteConditions*>> route = router.BuildRoute(stop_from, stop_to);
 			if (!route.has_value()) {
 				return Builder{}.StartDict().
@@ -132,11 +133,14 @@ namespace handler {
 		for (const Node& query : print_queries) {
 			Dict text_query = query.AsDict();
 			if (text_query.at("type"s) == "Bus"s) {
-				result_find.Value(FormInformBus(text_query.at("id"s).AsInt(), transport_catalogue_.GetBusInfo(text_query.at("name"s).AsString())));
+				result_find.Value(FormInformBus(text_query.at("id"s).AsInt(),
+                                                transport_catalogue_.GetBusInfo(text_query.at("name"s).AsString())));
 			} else if (text_query.at("type"s) == "Stop"s) {
-				result_find.Value(FormListBuses(text_query.at("id"s).AsInt(), transport_catalogue_.GetListBusesStop(text_query.at("name"s).AsString())));
+				result_find.Value(FormListBuses(text_query.at("id"s).AsInt(),
+                                                transport_catalogue_.GetListBusesStop(text_query.at("name"s).AsString())));
 			} else if (text_query.at("type"s) == "Route"s) {
-				result_find.Value(FormOptimalRoute(text_query.at("id"s).AsInt(), text_query.at("from"s).AsString(), text_query.at("to"s).AsString(), transpotr_router_));
+				result_find.Value(FormOptimalRoute(text_query.at("id"s).AsInt(), text_query.at("from"s).AsString(),
+                                                   text_query.at("to"s).AsString(), transpotr_router_));
 			} else {
 				ostringstream image;
 				this->RenderMap().Render(image);

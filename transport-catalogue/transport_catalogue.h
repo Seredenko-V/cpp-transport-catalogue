@@ -43,6 +43,7 @@ namespace transport_catalogue {
 		const std::deque<Bus>& GetAllBuses() const;
 		const std::deque<Stop>& GetAllStops() const;
 		size_t GetDistanceBetweenTwoStops(cStopPtr from, cStopPtr to) const;
+        const DistancesBetweenStops& GetAllDistancesBetweenTwoStops() const;
 
 	private:
 		void FillListsBusesStop(cBusPtr bus);
@@ -53,15 +54,15 @@ namespace transport_catalogue {
 		size_t CalculatingRoadDistance(cBusPtr bus) const;
 
 	private:
-		std::deque<Stop> stops_; // хранятся сами данные об остановках
-		std::deque<Bus> buses_; // хранятся данные о маршрутах
+		std::deque<Stop> stops_; // С…СЂР°РЅСЏС‚СЃСЏ СЃР°РјРё РґР°РЅРЅС‹Рµ РѕР± РѕСЃС‚Р°РЅРѕРІРєР°С…
+		std::deque<Bus> buses_; // С…СЂР°РЅСЏС‚СЃСЏ РґР°РЅРЅС‹Рµ Рѕ РјР°СЂС€СЂСѓС‚Р°С…
 
 		std::unordered_map<std::string_view, Stop*> stopname_to_stop_;
 		std::unordered_map<std::string_view, Bus*> busname_to_bus_;
 
-		// автобусы, проезжающие через остановку. Используется указатель на остановку, 
-		// а не string_view, т.к. string_view перестанет существовать
-		// после запроса, а "кэш" хранится на сервере
+        // Р°РІС‚РѕР±СѓСЃС‹, РїСЂРѕРµР·Р¶Р°СЋС‰РёРµ С‡РµСЂРµР· РѕСЃС‚Р°РЅРѕРІРєСѓ. РСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕСЃС‚Р°РЅРѕРІРєСѓ,
+        // Р° РЅРµ string_view, С‚.Рє. string_view РїРµСЂРµСЃС‚Р°РЅРµС‚ СЃСѓС‰РµСЃС‚РІРѕРІР°С‚СЊ
+        // РїРѕСЃР»Рµ Р·Р°РїСЂРѕСЃР°, Р° "РєСЌС€" С…СЂР°РЅРёС‚СЃСЏ РЅР° СЃРµСЂРІРµСЂРµ
 		std::unordered_map<cStopPtr, std::unordered_set<cBusPtr>> cache_buses_stops_;
 
 		DistancesBetweenStops distance_between_stops_;

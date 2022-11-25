@@ -54,8 +54,8 @@ namespace transport_catalogue {
 	}
 
 	size_t TransportCatalogue::GetNumUniqueStops(cBusPtr bus) const {
-		// уникальные - названия которых внутри ЭТОГО маршрута не повторяются
-		unordered_set<cStopPtr> unique_stops;
+        // СѓРЅРёРєР°Р»СЊРЅС‹Рµ - РЅР°Р·РІР°РЅРёСЏ РєРѕС‚РѕСЂС‹С… РІРЅСѓС‚СЂРё Р­РўРћР“Рћ РјР°СЂС€СЂСѓС‚Р° РЅРµ РїРѕРІС‚РѕСЂСЏСЋС‚СЃСЏ
+        unordered_set<cStopPtr> unique_stops;
 		for (cStopPtr const& stop : bus->stops) {
 			unique_stops.insert(stop);
 		}
@@ -72,7 +72,8 @@ namespace transport_catalogue {
 	}
 
 	size_t TransportCatalogue::GetDistanceBetweenTwoStops(cStopPtr first, cStopPtr second) const {
-		return distance_between_stops_.count({ first, second }) ? distance_between_stops_.at({ first, second }) : distance_between_stops_.at({ second, first });
+		return distance_between_stops_.count({ first, second }) ? distance_between_stops_.at({ first, second }) :
+        distance_between_stops_.at({ second, first });
 	}
 
 	size_t TransportCatalogue::CalculatingRoadDistance(cBusPtr bus) const {
@@ -124,4 +125,8 @@ namespace transport_catalogue {
 	const deque<Bus>& TransportCatalogue::GetAllBuses() const {
 		return buses_;
 	}
+
+    const DistancesBetweenStops& TransportCatalogue::GetAllDistancesBetweenTwoStops() const {
+        return distance_between_stops_;
+    }
 }

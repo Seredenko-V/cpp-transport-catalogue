@@ -24,6 +24,7 @@ namespace read {
 
 		domain::RoutingSettings ExtractRoutingSettings() const;
 		domain::MapVisualizationSettings ExtractRenderSettings() const;
+        domain::SerializatorSettings ExtractSerializatorSettings() const;
 		const json::Array& ExtractRequests() const;
 
 	private:

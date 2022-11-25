@@ -11,9 +11,11 @@ namespace read {
 			if (color.size() == 1) {
 				return color.front().AsString();
 			} else if (color.size() == 3) {
-				return Rgb{ static_cast<uint8_t>(color[0].AsInt()), static_cast<uint8_t>(color[1].AsInt()), static_cast<uint8_t>(color[2].AsInt()) };
+				return Rgb{ static_cast<uint8_t>(color[0].AsInt()), static_cast<uint8_t>(color[1].AsInt()),
+                            static_cast<uint8_t>(color[2].AsInt()) };
 			} else {
-				return Rgba{ static_cast<uint8_t>(color[0].AsInt()), static_cast<uint8_t>(color[1].AsInt()), static_cast<uint8_t>(color[2].AsInt()), color[3].AsDouble() };
+				return Rgba{ static_cast<uint8_t>(color[0].AsInt()), static_cast<uint8_t>(color[1].AsInt()),
+                             static_cast<uint8_t>(color[2].AsInt()), color[3].AsDouble() };
 			}
 		}
 
@@ -27,10 +29,12 @@ namespace read {
 			visual_settings.stop_radius = settings.at("stop_radius"s).AsDouble();
 			visual_settings.bus_label_font_size = settings.at("bus_label_font_size"s).AsInt();
 			Array bus_label_offset = settings.at("bus_label_offset"s).AsArray();
-			visual_settings.bus_label_offset = { bus_label_offset.front().AsDouble(), bus_label_offset.back().AsDouble() };
+			visual_settings.bus_label_offset = { bus_label_offset.front().AsDouble(),
+                                                 bus_label_offset.back().AsDouble() };
 			visual_settings.stop_label_font_size = settings.at("stop_label_font_size"s).AsInt();
 			Array stop_label_offset = settings.at("stop_label_offset"s).AsArray();
-			visual_settings.stop_label_offset = { stop_label_offset.front().AsDouble(), stop_label_offset.back().AsDouble() };
+			visual_settings.stop_label_offset = { stop_label_offset.front().AsDouble(),
+                                                  stop_label_offset.back().AsDouble() };
 			if (settings.at("underlayer_color"s).IsArray()) {
 				visual_settings.underlayer_color = GetColor(settings.at("underlayer_color"s).AsArray());
 			} else {
@@ -64,13 +68,15 @@ namespace read {
 		for (const auto& [name_other_stop, distance] : near_stops) {
 			distances_between_stops[name_this_stop][name_other_stop] = distance.AsInt();
 		}
-		transport_catalogue_.AddStop(move(name_this_stop), stop.at("latitude"s).AsDouble(), stop.at("longitude"s).AsDouble(), id++);
+		transport_catalogue_.AddStop(move(name_this_stop), stop.at("latitude"s).AsDouble(),
+                                     stop.at("longitude"s).AsDouble(), id++);
 	}
 
 	void JsonReader::FillDistanceStops(DictDistancesBetweenStops&& distances_between_stops) {
 		for (const auto& [name_this_stop, inform_other_stop] : distances_between_stops) {
 			for (const auto& [name_other_stop, distance] : inform_other_stop) {
-				transport_catalogue_.SetDistanceBetweenStops(transport_catalogue_.FindStop(name_this_stop), transport_catalogue_.FindStop(name_other_stop), distance);
+				transport_catalogue_.SetDistanceBetweenStops(transport_catalogue_.FindStop(name_this_stop),
+                                                             transport_catalogue_.FindStop(name_other_stop), distance);
 			}
 		}
 	}
@@ -116,6 +122,12 @@ namespace read {
 		const Dict& render_settings = query_.at("render_settings"s).AsDict();
 		return detail::GetRenderSettings(move(render_settings));
 	}
+
+    domain::SerializatorSettings JsonReader::ExtractSerializatorSettings() const {
+        assert(query_.count("serialization_settings"s));
+        const Dict& serialization_settings = query_.at("serialization_settings"s).AsDict();
+        return { serialization_settings.at("file").AsString() };
+    }
 
 	const Array& JsonReader::ExtractRequests() const {
 		assert(query_.count("stat_requests"s));
