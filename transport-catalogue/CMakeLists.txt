@@ -6,9 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 #if(NOT CMAKE_PREFIX_PATH)
 #    message(FATAL_ERROR "Please, specify Protobuf directory via -DCMAKE_PREFIX_PATH=<dir>")
 #endif()
-#message(STATUS "CMAKE_PREFIX_PATH dir is ${CMAKE_PREFIX_PATH}, change via -DCMAKE_PREFIX_PATH=<dir>")
-
 set(CMAKE_PREFIX_PATH D:/Projects_Cpp/yandex-cpp-mentor/Protobuf/package) # где установлен protobuf
+#message(STATUS "CMAKE_PREFIX_PATH dir is ${CMAKE_PREFIX_PATH}, change via -DCMAKE_PREFIX_PATH=<dir>")
 
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
