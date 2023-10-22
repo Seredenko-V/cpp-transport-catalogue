@@ -1,22 +1,32 @@
 cmake_minimum_required(VERSION 3.10)
-
 project(TransportCatalogue CXX)
 set(CMAKE_CXX_STANDARD 17)
+
+#set(CMAKE_PREFIX_PATH CACHE STRING "Directory with installed Protobuf")
+#if(NOT CMAKE_PREFIX_PATH)
+#    message(FATAL_ERROR "Please, specify Protobuf directory via -DCMAKE_PREFIX_PATH=<dir>")
+#endif()
+#message(STATUS "CMAKE_PREFIX_PATH dir is ${CMAKE_PREFIX_PATH}, change via -DCMAKE_PREFIX_PATH=<dir>")
+
+set(CMAKE_PREFIX_PATH D:/Projects_Cpp/yandex-cpp-mentor/Protobuf/package) # где установлен protobuf
 
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS transport_catalogue.proto svg.proto map_renderer.proto transport_router.proto)
 
-set(TRANSPORT_CATALOGUE_FILES main.cpp domain.h domain.cpp geo.h geo.cpp graph.h 
-	json_builder.h json_builder.cpp json_reader.h json_reader.cpp
-	json.h json.cpp map_renderer.h map_renderer.cpp ranges.h
-	request_handler.h request_handler.cpp router.h
-	serialization.h serialization.cpp svg.h svg.cpp
-	transport_catalogue.h transport_catalogue.cpp
-	transport_router.h transport_router.cpp transport_catalogue.proto)
+set(JSON_FILES json.h json.cpp json_builder.h json_builder.cpp json_reader.h json_reader.cpp)
+set(HANDLER_FILES request_handler.h request_handler.cpp)
+set(DOMAIN_FILES domain.h domain.cpp geo.h geo.cpp)
+set(CATALOGUE_FILES transport_catalogue.h transport_catalogue.cpp)
+set(RENDER_FILES map_renderer.h map_renderer.cpp svg.h svg.cpp)
+set(ROUTER_FILES transport_router.h transport_router.cpp router.h graph.h)
+set(SERIALIZATOR_FILES serialization.h serialization.cpp ranges.h)
+set(PROTO_FILES transport_catalogue.proto svg.proto map_renderer.proto transport_router.proto)
 
-add_executable(transport_catalogue ${PROTO_SRCS} ${PROTO_HDRS} ${TRANSPORT_CATALOGUE_FILES})
+add_executable(transport_catalogue ${PROTO_SRCS} ${PROTO_HDRS} main.cpp ${JSON_FILES} ${HANDLER_FILES}
+    ${DOMAIN_FILES} ${CATALOGUE_FILES} ${RENDER_FILES} ${ROUTER_FILES} ${SERIALIZATOR_FILES} ${PROTO_FILES})
+
 target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(transport_catalogue PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
