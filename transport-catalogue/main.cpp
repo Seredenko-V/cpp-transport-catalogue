@@ -1,13 +1,23 @@
-#include <iostream>
-#include <string_view>
-#include <stdexcept>
+#define RUN_TYPE 0
 
+#if RUN_TYPE == 0
+#include "../tests/testrunner.h"
+
+int main() {
+    tests::RunAllTests();
+    return 0;
+}
+#else
 #include "transport_catalogue.h"
 #include "json_reader.h"
 #include "transport_router.h"
 #include "map_renderer.h"
 #include "request_handler.h"
 #include "serialization.h"
+
+#include <iostream>
+#include <string_view>
+#include <stdexcept>
 
 using namespace std;
 
@@ -20,7 +30,6 @@ int main(int argc, char* argv[]) {
         PrintUsage();
         return 1;
     }
-
     const std::string_view mode(argv[1]);
 
     try {
@@ -33,8 +42,8 @@ int main(int argc, char* argv[]) {
 
         if (mode == "make_base"sv) {
             reader.FillCatalogue();
-            map_renderer.SetSettings(move(reader.ExtractRenderSettings()));
-            t_router.Initialization(move(reader.ExtractRoutingSettings()));
+            map_renderer.SetSettings(reader.ExtractRenderSettings());
+            t_router.Initialization(reader.ExtractRoutingSettings());
             serializator.SerializeDataBase();
         } else if (mode == "process_requests"sv) {
             serializator.DeserializeDataBase();
@@ -49,3 +58,4 @@ int main(int argc, char* argv[]) {
     }
     return 0;
 }
+#endif

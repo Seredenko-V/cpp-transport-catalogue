@@ -187,7 +187,7 @@ void Serializator::WriteBuses() {
 
 void Serializator::WriteDistances() {
     const transport_catalogue::DistancesBetweenStops& all_distances =  t_catalogue_.GetAllDistancesBetweenTwoStops();
-    for (const auto [key, value] : all_distances) {
+    for (const auto& [key, value] : all_distances) {
         *t_catalogue_proto_.add_distances() = conversion::to_proto::CreateDistance(key.first, key.second, value);
     }
 }
@@ -233,23 +233,23 @@ void Serializator::FromProtoBus(const transport_catalogue_proto::Bus& bus_proto)
     for (size_t i = 0; i < stops.size(); ++i) {
         stops[i] = bus_proto.name_stops(i);
     }
-    t_catalogue_.AddBus(string(bus_proto.name()), move(stops), bus_proto.is_ring());
+    t_catalogue_.AddBus(string(bus_proto.name()), std::move(stops), bus_proto.is_ring());
 }
 
 void Serializator::ReadProtoStops() {
-    for (size_t i = 0; i < t_catalogue_proto_.stops_size(); ++i) {
+    for (int i = 0; i < t_catalogue_proto_.stops_size(); ++i) {
         FromProtoStop(t_catalogue_proto_.stops(i));
     }
 }
 
 void Serializator::ReadProtoBuses() {
-    for (size_t i = 0; i < t_catalogue_proto_.distances_size(); ++i) {
+    for (int i = 0; i < t_catalogue_proto_.distances_size(); ++i) {
         FromProtoDistance(t_catalogue_proto_.distances(i));
     }
 }
 
 void Serializator::ReadProtoDistance() {
-    for (size_t i = 0; i < t_catalogue_proto_.buses_size(); ++i) {
+    for (int i = 0; i < t_catalogue_proto_.buses_size(); ++i) {
         FromProtoBus(t_catalogue_proto_.buses(i));
     }
 }

@@ -1,0 +1,290 @@
+{
+  "serialization_settings": {
+    "file": "transport_catalogue.db"
+  },
+  "stat_requests": [
+    {
+      "id": 558955,
+      "type": "Route",
+      "from": "ivINyqCl3r",
+      "to": "DDKpnJzGP3Ck7YE97m5SgDxB"
+    },
+    {
+      "id": 473554312,
+      "type": "Route",
+      "from": "BX3rtchjFP2Pyo",
+      "to": "HAfO2N9L2QqQ1"
+    },
+    {
+      "id": 866658496,
+      "type": "Stop",
+      "name": "d6Xikh0Xpf"
+    },
+    {
+      "id": 1364059178,
+      "type": "Stop",
+      "name": "Pht24ziQAHjx9"
+    },
+    {
+      "id": 1771277544,
+      "type": "Route",
+      "from": "1N",
+      "to": "QMpVuChN"
+    },
+    {
+      "id": 1971822925,
+      "type": "Route",
+      "from": "0sCF9am34KbwOqF4HrZWuJ",
+      "to": "2cZQ5"
+    },
+    {
+      "id": 1520076005,
+      "type": "Route",
+      "from": "P2OvvxZ",
+      "to": "slz6z1Q1RzP0Q9cO6wx8ArNU"
+    },
+    {
+      "id": 1520279032,
+      "type": "Bus",
+      "name": "8ahw"
+    },
+    {
+      "id": 940936291,
+      "type": "Route",
+      "from": "1r",
+      "to": "sHDvvM7keZ854om"
+    },
+    {
+      "id": 1492040935,
+      "type": "Route",
+      "from": "r8LkPIfTg",
+      "to": "Ujn5fvTGMk"
+    },
+    {
+      "id": 449898021,
+      "type": "Route",
+      "from": "lbrFm7S67JeZLIwUBtqNYKCRR",
+      "to": "ixy5GdrXxMT"
+    },
+    {
+      "id": 1075738523,
+      "type": "Bus",
+      "name": "xWuT3Sfj41gtBS 3"
+    },
+    {
+      "id": 470653601,
+      "type": "Route",
+      "from": "fLHmxlQ",
+      "to": "6s"
+    },
+    {
+      "id": 728808655,
+      "type": "Route",
+      "from": "5nYu6h0IrlL6h5HxujxHZ",
+      "to": "baG6tBNy"
+    },
+    {
+      "id": 2019472854,
+      "type": "Route",
+      "from": "HLupQhpvHXP58AjqIUIrd4hL",
+      "to": "h1AOIdhbbCv5PCaq5"
+    },
+    {
+      "id": 1810507683,
+      "type": "Route",
+      "from": "w0",
+      "to": "jvNze haxTvDB"
+    },
+    {
+      "id": 1560190601,
+      "type": "Route",
+      "from": "glvMXzLpERi",
+      "to": "iwn0Do84"
+    },
+    {
+      "id": 1747341646,
+      "type": "Stop",
+      "name": "BHvAUf1fWgxzvs6U4Z"
+    },
+    {
+      "id": 980350890,
+      "type": "Route",
+      "from": "2mrU8ypRV3AKnx7",
+      "to": "NLvs7C0eNvHR8h"
+    },
+    {
+      "id": 1415701379,
+      "type": "Bus",
+      "name": "01DZ37BFnIyxTtpSCJaIpM4P"
+    },
+    {
+      "id": 1153196565,
+      "type": "Route",
+      "from": "ACCYL1SedVwMhfX9QzfCg",
+      "to": "Qo1Br"
+    },
+    {
+      "id": 1725745900,
+      "type": "Route",
+      "from": "jftEPVELcHiEtonA",
+      "to": "R4tz2y6"
+    },
+    {
+      "id": 510379486,
+      "type": "Stop",
+      "name": "gcl"
+    },
+    {
+      "id": 840902396,
+      "type": "Route",
+      "from": "OpTpKNLi",
+      "to": "ZDXsu465LoKSrymtNm0hIwL9W"
+    },
+    {
+      "id": 929172631,
+      "type": "Route",
+      "from": "eZVvxx8Bz",
+      "to": "1027 Mspu0JiRIa"
+    },
+    {
+      "id": 754370674,
+      "type": "Route",
+      "from": "gsUsGP",
+      "to": "gsUsGP"
+    },
+    {
+      "id": 1635226662,
+      "type": "Route",
+      "from": "Qu6gBgimIsLL91",
+      "to": "WpqgNhlWNG"
+    },
+    {
+      "id": 756850770,
+      "type": "Stop",
+      "name": "w5"
+    },
+    {
+      "id": 293424746,
+      "type": "Stop",
+      "name": "pjG"
+    },
+    {
+      "id": 314535192,
+      "type": "Bus",
+      "name": "76cqnW7RYouysR66Wr lwF1Qv"
+    },
+    {
+      "id": 2138835549,
+      "type": "Route",
+      "from": "HeF4hgb8FZxGpdCk",
+      "to": "P6fMQFZPotb61hom1kb"
+    },
+    {
+      "id": 980602471,
+      "type": "Route",
+      "from": "QizmONlgCrIJtWEGznBd",
+      "to": "d2tCMwhSchy1tje"
+    },
+    {
+      "id": 1040745571,
+      "type": "Route",
+      "from": "wdLiJBZn3bQYeYRMIO",
+      "to": "p4VY3Z1O"
+    },
+    {
+      "id": 2142463919,
+      "type": "Route",
+      "from": "1OiLp9mClokd7cWXTGV5W",
+      "to": "zMxc"
+    },
+    {
+      "id": 7781819,
+      "type": "Bus",
+      "name": "29a1ImptNKmZGehR48A61zC"
+    },
+    {
+      "id": 153492758,
+      "type": "Bus",
+      "name": "ndpUIK5VJi"
+    },
+    {
+      "id": 1377644385,
+      "type": "Route",
+      "from": "2jBHxIeflofWmP",
+      "to": "B5"
+    },
+    {
+      "id": 417873066,
+      "type": "Route",
+      "from": "L2D2W8k",
+      "to": "eeH a"
+    },
+    {
+      "id": 29792166,
+      "type": "Route",
+      "from": "eyb",
+      "to": "gsUsGP"
+    },
+    {
+      "id": 1419807752,
+      "type": "Route",
+      "from": "H4AechoEsGnvuTui5M Chs wg",
+      "to": "1 N1DsO01rKgBXfzXssyrtt"
+    },
+    {
+      "id": 1858338904,
+      "type": "Bus",
+      "name": "hGFac"
+    },
+    {
+      "id": 112191193,
+      "type": "Route",
+      "from": "h4Jq1a14",
+      "to": "zV"
+    },
+    {
+      "id": 508471129,
+      "type": "Route",
+      "from": "8GI6l0XB1g6V 1Q8hgpzHc",
+      "to": "0o"
+    },
+    {
+      "id": 1981639225,
+      "type": "Route",
+      "from": "W6ow YmsmT",
+      "to": "2XsVW 0VsP4srqn"
+    },
+    {
+      "id": 2131063275,
+      "type": "Stop",
+      "name": "B3TP1oAVIPwh0 Q"
+    },
+    {
+      "id": 2086953763,
+      "type": "Bus",
+      "name": "ytnVOlcbGXMyrSkpUAm"
+    },
+    {
+      "id": 1359488064,
+      "type": "Route",
+      "from": "2cZQ5",
+      "to": "XPaHmu7s2NOLgDZEe"
+    },
+    {
+      "id": 1085082139,
+      "type": "Route",
+      "from": "I6LAtL",
+      "to": "KsMkhpwuif7j"
+    },
+    {
+      "id": 1571566684,
+      "type": "Route",
+      "from": "tHm5duKTcpSozDLiq5",
+      "to": "s6j5"
+    },
+    {
+      "id": 1094184817,
+      "type": "Map"
+    }
+  ]
+}

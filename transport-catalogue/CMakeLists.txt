@@ -2,6 +2,10 @@ cmake_minimum_required(VERSION 3.10)
 project(TransportCatalogue CXX)
 set(CMAKE_CXX_STANDARD 17)
 
+add_compile_options(-Wall -Wextra -Wpedantic -Werror)
+#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+#set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+
 #set(CMAKE_PREFIX_PATH CACHE STRING "Directory with installed Protobuf")
 #if(NOT CMAKE_PREFIX_PATH)
 #    message(FATAL_ERROR "Please, specify Protobuf directory via -DCMAKE_PREFIX_PATH=<dir>")
@@ -23,8 +27,11 @@ set(ROUTER_FILES transport_router.h transport_router.cpp router.h graph.h)
 set(SERIALIZATOR_FILES serialization.h serialization.cpp ranges.h)
 set(PROTO_FILES transport_catalogue.proto svg.proto map_renderer.proto transport_router.proto)
 
+set(TESTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../tests")
+set(TEST_FILES ${TESTS_DIR}/testrunner.h ${TESTS_DIR}/testrunner.cpp)
+
 add_executable(transport_catalogue ${PROTO_SRCS} ${PROTO_HDRS} main.cpp ${JSON_FILES} ${HANDLER_FILES}
-    ${DOMAIN_FILES} ${CATALOGUE_FILES} ${RENDER_FILES} ${ROUTER_FILES} ${SERIALIZATOR_FILES} ${PROTO_FILES})
+    ${DOMAIN_FILES} ${CATALOGUE_FILES} ${RENDER_FILES} ${ROUTER_FILES} ${SERIALIZATOR_FILES} ${PROTO_FILES} ${TEST_FILES})
 
 target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(transport_catalogue PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
