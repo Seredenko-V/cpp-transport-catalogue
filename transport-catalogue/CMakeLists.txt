@@ -3,15 +3,12 @@ project(TransportCatalogue CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 add_compile_options(-Wall -Wextra -Wpedantic -Werror)
-#set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-#set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 #set(CMAKE_PREFIX_PATH CACHE STRING "Directory with installed Protobuf")
 #if(NOT CMAKE_PREFIX_PATH)
 #    message(FATAL_ERROR "Please, specify Protobuf directory via -DCMAKE_PREFIX_PATH=<dir>")
 #endif()
 set(CMAKE_PREFIX_PATH D:/Projects_Cpp/yandex-cpp-mentor/Protobuf/package) # где установлен protobuf
-#message(STATUS "CMAKE_PREFIX_PATH dir is ${CMAKE_PREFIX_PATH}, change via -DCMAKE_PREFIX_PATH=<dir>")
 
 find_package(Protobuf REQUIRED)
 find_package(Threads REQUIRED)

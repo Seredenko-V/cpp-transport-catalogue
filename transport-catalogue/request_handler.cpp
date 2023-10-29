@@ -1,4 +1,5 @@
 #include "request_handler.h"
+#include "json_builder.h"
 
 namespace handler {
 	using namespace std;

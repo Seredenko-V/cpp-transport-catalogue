@@ -1,6 +1,6 @@
-#define RUN_TYPE 0
+#define RUN_TYPE 1
 
-#if RUN_TYPE == 0
+#if RUN_TYPE == 1
 #include "../tests/testrunner.h"
 
 int main() {
