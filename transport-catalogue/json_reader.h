@@ -1,7 +1,6 @@
 #pragma once
 #include "json.h"
 #include "domain.h"
-#include "map_renderer.h"
 #include "transport_catalogue.h"
 
 #include <cassert>

@@ -76,7 +76,7 @@ namespace transport_router {
 	}
 
 	void TransportRouter::SetRoutingSettings(RoutingSettings&& routing_settings) {
-		routing_settings_ = move(routing_settings);
+        routing_settings_ = std::move(routing_settings);
 	}
 
 	void TransportRouter::CreateGraph() {
@@ -105,7 +105,7 @@ namespace transport_router {
 					RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], &bus, route_inform };
 
 					directed_weighted_graph_ptr_->AddEdge({ route_conditions.from->id, route_conditions.to->id, route_inform });
-					optimal_route_.emplace_back(move(route_conditions));
+                    optimal_route_.emplace_back(std::move(route_conditions));
 
 					if (!bus.is_ring) {
 						double time_travel_minutes = detail::CalculateTimeTravelBetweenStopsInMinutes(distance_calculator.GetDistanceBetween(j, i),
@@ -114,7 +114,7 @@ namespace transport_router {
 						RouteConditions route_conditions{ stops_this_bus[i], stops_this_bus[j], &bus, route_inform };
 
 						directed_weighted_graph_ptr_->AddEdge({ route_conditions.to->id, route_conditions.from->id, route_inform });
-						optimal_route_.emplace_back(move(route_conditions));
+                        optimal_route_.emplace_back(std::move(route_conditions));
 					}
 				}
 			}
@@ -122,7 +122,7 @@ namespace transport_router {
 	}
 
 	void TransportRouter::Initialization(RoutingSettings&& routing_settings) {
-		this->SetRoutingSettings(move(routing_settings));
+        this->SetRoutingSettings(std::move(routing_settings));
 		this->CreateGraph();
 		if (directed_weighted_graph_ptr_.get() == nullptr) {
 			throw logic_error("Attempt to create a router with an empty graph"s);
