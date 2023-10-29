@@ -38,7 +38,7 @@
         - `Bus` - получение информации о маршруте;
         - `Stop` - получение информации об остановке;
         - `Map` - получение графического изображения карты в формате svg
-        ![Map](https://raw.githubusercontent.com/Seredenko-V/cpp-transport-catalogue/refactoring/images/stat_requests_Map.png?token=GHSAT0AAAAAAB7SDXXW3G543ZU4QD72JG2GZJ6MMHQ "Map")        
+        ![Map](https://raw.githubusercontent.com/Seredenko-V/cpp-transport-catalogue/main/images/stat_requests_Map.png "Map")        
         - `Route` - получение кратчайшего маршрута из остановки А к остановке Б.
 ### Ответы на запросы
 1. **`Bus`**:
